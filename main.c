@@ -22,5 +22,9 @@ Entrega: Sí
 int main()
 {
     printf("Hello world!\n");
+    printf("Esto es un menu\n");
+    int a = 2;
+    int b = 4;
+    printf("a: %d, b: %d", a, b);
     return 0;
 }
