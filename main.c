@@ -22,6 +22,5 @@ Entrega: Sí
 int main()
 {
     printf("Hello world!\n");
-    printf("Cambios para GIT");
     return 0;
 }
