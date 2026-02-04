@@ -25,6 +25,7 @@ int main()
     printf("Esto es un menu\n");
     int a = 2;
     int b = 4;
+    int c = 6;
     printf("a: %d, b: %d", a, b);
     return 0;
 }
