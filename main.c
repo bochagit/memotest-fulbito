@@ -16,16 +16,22 @@ DNI: 44669267
 Entrega: Sí
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "app.h"
 
-int main()
-{
-    printf("Hello world!\n");
-    printf("Esto es un menu\n");
-    int a = 2;
-    int b = 4;
-    int c = 6;
-    printf("a: %d, b: %d", a, b);
+int main(int argc, char *argv[]){
+    App app;
+
+    if (!appInit(&app)){
+        return 1;
+    }
+
+    while (app.running){
+        appHandleEvents(&app);
+        appUpdate(&app);
+        appRender(&app);
+    }
+
+    appCleanup(&app);
+
     return 0;
 }
