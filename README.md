@@ -18,7 +18,7 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ## 📋 Checklist general del TP
 
 ### 🧱 Estructura y reglas formales (OBLIGATORIO)
-- [ ] Nombre del grupo válido (RAE + ASCII 0x41–0x5A)
+- [x] Nombre del grupo válido (RAE + ASCII 0x41–0x5A)
 - [ ] Archivo final: `TP_TOPICOS_2025_3C_NOMBREGRUPO.zip`
 - [ ] ZIP solo contiene:
   - [ ] `/img`
