@@ -1,24 +1,4 @@
-# ==== BINARIOS ====
-*.exe
-*.out
-*.app
-
-# ==== OBJETOS DE COMPILACIÓN ====
-*.o
-*.obj
-*.a
-*.so
-*.dll
-
-# ==== CODE::BLOCKS ====
-*.cbp
-*.layout
-*.depend
-
-# ==== CARPETAS DE BUILD ====
-bin/
+# Ignora archivos objeto
 obj/
-debug/
-
-# === LIBRERIAS ===
-lib/
+*.depend
+*.layout

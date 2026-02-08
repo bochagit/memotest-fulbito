@@ -1,0 +1,287 @@
+/**
+ * @file memoria.c
+ * @brief Implementación del juego de la memoria (lógica y renderizado básico)
+ */
+
+#include "memoria.h"
+#include "imagenes.h"
+#include "vector.h"
+#include "sonidos.h"
+#include "graficos.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define TIEMPO_MOSTRAR_MS 700
+#define PUNTOS_MIN 10
+#define PUNTOS_MAX 50
+
+typedef struct {
+    SDL_Texture *textura; // textura de la imagen de la pareja
+    int idPareja;        // id de la pareja (misma para los dos)
+    int puntos;          // puntos que suma el par al encontrarse
+    uint8_t descubierta; // 0 oculta, 1 visible
+    uint8_t encontrada;  // 1 si ya fue encontrada
+} tCarta;
+
+struct sMemoria {
+    tVector *cartas; // vector de tCarta
+    int filas;
+    int columnas;
+    SDL_Renderer *renderer;
+    int seleccionado1; // índice de la primera carta seleccionada, -1 si ninguno
+    int seleccionado2; // índice de la segunda seleccionada, -1 si ninguno
+    uint32_t tiempoEspera; // contador para ocultar/confirmar después de segunda selección
+    int puntos;
+    int aciertos;
+    int intentos;
+    int racha;
+    int usarSonidos;
+    tSonido *sonido_acierto;
+    tSonido *sonido_fallo;
+};
+
+static int _rand_entre(int a, int b) {
+    return a + rand() % (b - a + 1);
+}
+
+// Crea el path para el archivo de la pareja con índice i (1-based)
+static void _construir_path(char *dst, size_t dstsize, const char *prefijo, int indice)
+{
+    // Ejemplo: prefijo = "img/pareja" -> "img/pareja1.png"
+    snprintf(dst, dstsize, "%s%d.png", prefijo, indice);
+}
+
+tMemoria* memoria_crear(SDL_Renderer *renderer, int filas, int columnas, const char *rutaSet, int usarSonidos)
+{
+    if (!renderer || filas <= 0 || columnas <= 0) return NULL;
+    int total = filas * columnas;
+    if (total % 2 != 0) return NULL; // número de cartas debe ser par
+    int pares = total / 2;
+
+    tMemoria *m = malloc(sizeof(tMemoria));
+    if (!m) return NULL;
+    memset(m, 0, sizeof(tMemoria));
+    m->filas = filas;
+    m->columnas = columnas;
+    m->renderer = renderer;
+    m->cartas = vector_create(sizeof(tCarta));
+    if (!m->cartas) { free(m); return NULL; }
+
+    srand((unsigned)time(NULL));
+
+    // Cargar pares disponibles (asumir archivos nombrados pareja1..pareja10)
+    for (int id = 1; id <= pares; ++id) {
+        char path[256];
+        _construir_path(path, sizeof(path), rutaSet, id);
+        SDL_Texture *tex = imagenes_cargar_gpu(renderer, path);
+        if (!tex) {
+            // Liberar recursos cargados hasta el momento
+            for (size_t k = 0; k < vector_size(m->cartas); ++k) {
+                tCarta *c = (tCarta*)vector_get(m->cartas, k);
+                if (c && c->textura) SDL_DestroyTexture(c->textura);
+            }
+            vector_destroy(m->cartas);
+            free(m);
+            return NULL;
+        }
+
+        int puntosPareja = _rand_entre(PUNTOS_MIN, PUNTOS_MAX);
+
+        // Crear dos cartas para la pareja
+        for (int rep = 0; rep < 2; ++rep) {
+            tCarta carta;
+            carta.textura = tex; // compartimos la textura (la destruiremos al cerrar)
+            carta.idPareja = id;
+            carta.puntos = puntosPareja;
+            carta.descubierta = 0;
+            carta.encontrada = 0;
+            if (vector_push_back(m->cartas, &carta) != 0) {
+                // limpieza básica
+            }
+        }
+    }
+
+    // Barajar el vector (Fisher-Yates)
+    size_t n = vector_size(m->cartas);
+    for (size_t i = n - 1; i > 0; --i) {
+        size_t j = rand() % (i + 1);
+        if (i != j) {
+            tCarta tmp;
+            tCarta *ci = (tCarta*)vector_get(m->cartas, i);
+            tCarta *cj = (tCarta*)vector_get(m->cartas, j);
+            tmp = *ci;
+            *ci = *cj;
+            *cj = tmp;
+        }
+    }
+
+    m->seleccionado1 = -1;
+    m->seleccionado2 = -1;
+    m->tiempoEspera = 0;
+    m->puntos = 0;
+    m->aciertos = 0;
+    m->intentos = 0;
+    m->racha = 0;
+    m->usarSonidos = usarSonidos;
+    m->sonido_acierto = NULL;
+    m->sonido_fallo = NULL;
+    if (usarSonidos) {
+        m->sonido_acierto = sonidos_cargar("snd/Acierto_parejas.mp3");
+        m->sonido_fallo = sonidos_cargar("snd/No_acierto.mp3");
+    }
+
+    return m;
+}
+
+void memoria_destruir(tMemoria *m)
+{
+    if (!m) return;
+    // destruir texturas (cada textura se compartió 2 veces, destruir una vez)
+    // asumimos que la misma textura está compartida entre cartas de la pareja; para
+    // simplicidad destruimos la textura almacenada en cada carta pero solo si no NULL.
+    for (size_t i = 0; i < vector_size(m->cartas); ++i) {
+        tCarta *c = (tCarta*)vector_get(m->cartas, i);
+        if (c && c->textura) {
+            SDL_DestroyTexture(c->textura);
+            c->textura = NULL;
+        }
+    }
+    vector_destroy(m->cartas);
+
+    if (m->sonido_acierto) sonidos_destruir(m->sonido_acierto);
+    if (m->sonido_fallo) sonidos_destruir(m->sonido_fallo);
+    free(m);
+}
+
+static int _pos_a_indice(tMemoria *m, int x, int y)
+{
+    if (!m) return -1;
+    if (x < 0 || x >= m->columnas || y < 0 || y >= m->filas) return -1;
+    return y * m->columnas + x;
+}
+
+// Calcula la posición y tamaño de cada carta en pantalla
+static void _calcular_rect_carta(tMemoria *m, int indice, SDL_Rect *dst, int anchoVentana, int altoVentana)
+{
+    int col = indice % m->columnas;
+    int fila = indice / m->columnas;
+
+    // dejar padding mínimo
+    int padding = 8;
+    int areaW = anchoVentana - padding*2;
+    int areaH = altoVentana - padding*2;
+    int w = areaW / m->columnas - padding;
+    int h = areaH / m->filas - padding;
+    dst->x = padding + col * (w + padding);
+    dst->y = padding + fila * (h + padding);
+    dst->w = w;
+    dst->h = h;
+}
+
+tError memoria_procesar_evento(tMemoria *m, const SDL_Event *ev)
+{
+    if (!m || !ev) return ERR_MEMORIA;
+
+    if (ev->type == SDL_MOUSEBUTTONDOWN && ev->button.button == SDL_BUTTON_LEFT) {
+        int mx = ev->button.x;
+        int my = ev->button.y;
+        // determinar qué carta fue clickeada según layout: asumimos ventana completa
+        int anchoVentana, altoVentana;
+        SDL_GetRendererOutputSize(m->renderer, &anchoVentana, &altoVentana);
+
+        for (size_t i = 0; i < vector_size(m->cartas); ++i) {
+            SDL_Rect dst;
+            _calcular_rect_carta(m, (int)i, &dst, anchoVentana, altoVentana);
+            if (mx >= dst.x && mx <= dst.x + dst.w && my >= dst.y && my <= dst.y + dst.h) {
+                tCarta *c = (tCarta*)vector_get(m->cartas, i);
+                if (!c || c->encontrada) return TODO_OK;
+                // si ya hay dos seleccionadas o estamos en espera, ignorar
+                if (m->seleccionado2 != -1 && m->tiempoEspera > 0) return TODO_OK;
+
+                if (m->seleccionado1 == -1) {
+                    c->descubierta = 1;
+                    m->seleccionado1 = (int)i;
+                } else if (m->seleccionado1 == (int)i) {
+                    // click en la misma carta, ignorar
+                } else {
+                    c->descubierta = 1;
+                    m->seleccionado2 = (int)i;
+                    m->tiempoEspera = TIEMPO_MOSTRAR_MS;
+                    // contaremos el intento al completar la espera
+                }
+                break;
+            }
+        }
+    }
+    return TODO_OK;
+}
+
+void memoria_actualizar(tMemoria *m, uint32_t deltaMs)
+{
+    if (!m) return;
+    if (m->seleccionado2 != -1 && m->tiempoEspera > 0) {
+        if (deltaMs >= m->tiempoEspera) {
+            // procesar comparación
+            tCarta *c1 = (tCarta*)vector_get(m->cartas, m->seleccionado1);
+            tCarta *c2 = (tCarta*)vector_get(m->cartas, m->seleccionado2);
+            m->intentos++;
+            if (c1 && c2 && c1->idPareja == c2->idPareja) {
+                c1->encontrada = 1;
+                c2->encontrada = 1;
+                m->aciertos++;
+                m->racha++;
+                // puntos con bonus por racha (25% extra por racha adicional)
+                float multiplicador = 1.0f + 0.25f * (m->racha - 1);
+                int puntosGanados = (int)(c1->puntos * multiplicador + 0.5f);
+                m->puntos += puntosGanados;
+                if (m->usarSonidos && m->sonido_acierto) sonidos_reproducir(m->sonido_acierto, 1);
+            } else {
+                // fallo: ocultar ambas
+                if (c1) c1->descubierta = 0;
+                if (c2) c2->descubierta = 0;
+                m->racha = 0;
+                if (m->usarSonidos && m->sonido_fallo) sonidos_reproducir(m->sonido_fallo, 1);
+            }
+
+            // reset
+            m->seleccionado1 = -1;
+            m->seleccionado2 = -1;
+            m->tiempoEspera = 0;
+        } else {
+            m->tiempoEspera -= deltaMs;
+        }
+    }
+}
+
+void memoria_renderizar(tMemoria *m, SDL_Renderer *renderer)
+{
+    if (!m || !renderer) return;
+    int anchoVentana, altoVentana;
+    SDL_GetRendererOutputSize(renderer, &anchoVentana, &altoVentana);
+
+    for (size_t i = 0; i < vector_size(m->cartas); ++i) {
+        tCarta *c = (tCarta*)vector_get(m->cartas, i);
+        SDL_Rect dst;
+        _calcular_rect_carta(m, (int)i, &dst, anchoVentana, altoVentana);
+
+        if (c->descubierta || c->encontrada) {
+            // dibujar la textura de la pareja
+            graficos_dibujar_textura(renderer, c->textura, NULL, dst.x, dst.y, (float)dst.w / 64.0f, (float)dst.h / 64.0f, 0.0, 0, 0);
+        } else {
+            // dibujar un rectángulo gris como dorso
+            SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+            SDL_RenderFillRect(renderer, &dst);
+        }
+    }
+}
+
+void memoria_obtener_estadisticas(tMemoria *m, int *puntos, int *aciertos, int *intentos, int *racha)
+{
+    if (!m) return;
+    if (puntos) *puntos = m->puntos;
+    if (aciertos) *aciertos = m->aciertos;
+    if (intentos) *intentos = m->intentos;
+    if (racha) *racha = m->racha;
+}
