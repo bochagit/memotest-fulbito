@@ -22,3 +22,6 @@ debug/
 
 # === LIBRERIAS ===
 lib/
+
+# === RESPALDO ===
+*.bak
