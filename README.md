@@ -41,58 +41,58 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ---
 
 ## 📦 TDA Vector (REQUISITO EXCLUYENTE)
-- [ ] Implementar **TDA Vector con memoria dinámica**
-- [ ] NO usar arrays estáticos para:
-  - [ ] Cartas
-  - [ ] Tablero
-  - [ ] Jugadores
-  - [ ] Estadísticas
-- [ ] Funciones mínimas:
-  - [ ] Crear vector
-  - [ ] Destruir vector
-  - [ ] Push
-  - [ ] Get
-  - [ ] Remove
+- [x] Implementar **TDA Vector con memoria dinámica**
+- [x] NO usar arrays estáticos para:
+  - [x] Cartas
+  - [x] Tablero
+  - [x] Jugadores
+  - [x] Estadísticas
+- [x] Funciones mínimas:
+  - [x] Crear vector
+  - [x] Destruir vector
+  - [x] Push
+  - [x] Get
+  - [x] Remove
 
 ---
 
 ## 🎮 Funcionalidades mínimas (OBLIGATORIAS)
 
 ### Pantallas y flujo
-- [ ] Pantalla de presentación
-- [ ] Menú gráfico
-- [ ] Inicio y cierre correcto del juego
+- [x] Pantalla de presentación
+- [x] Menú gráfico
+- [x] Inicio y cierre correcto del juego
 
 ### Juego Memotest
-- [ ] Tablero configurable:
-  - [ ] 3x4 (6 pares)
-  - [ ] 4x4 (8 pares)
-  - [ ] 4x5 (10 pares)
-- [ ] Cartas ordenadas aleatoriamente al iniciar
+- [x] Tablero configurable:
+  - [x] 3x4 (6 pares)
+  - [x] 4x4 (8 pares)
+  - [x] 4x5 (10 pares)
+- [x] Cartas ordenadas aleatoriamente al iniciar
 - [ ] Cada par tiene puntaje asignado aleatoriamente
-- [ ] Detección de pares correctos / incorrectos
-- [ ] Sistema de puntuación
+- [x] Detección de pares correctos / incorrectos
+- [x] Sistema de puntuación
 - [ ] Sistema de rachas de aciertos
-- [ ] Estadísticas de juego visibles
+- [x] Estadísticas de juego visibles
 
 ---
 
 ## 🧑‍💻 Interfaz gráfica (SDL)
-- [ ] Ingreso de nombre del jugador **desde la interfaz gráfica**
-- [ ] Visualización de puntaje
+- [x] Ingreso de nombre del jugador **desde la interfaz gráfica**
+- [x] Visualización de puntaje
 - [ ] Visualización de estadísticas
-- [ ] NO usar consola para interacción con el usuario
+- [x] NO usar consola para interacción con el usuario
 
 ---
 
 ## ⚙️ Configuración persistente
-- [ ] Menú gráfico de configuración
+- [x] Menú gráfico de configuración
 - [ ] Guardar configuración en archivo
 - [ ] Cargar configuración al iniciar
-- [ ] Configurar:
-  - [ ] Dimensiones del tablero
-  - [ ] Set de figuras
-  - [ ] Cantidad de jugadores (si aplica)
+- [x] Configurar:
+  - [x] Dimensiones del tablero
+  - [x] Set de figuras
+  - [x] Cantidad de jugadores (si aplica)
 
 ---
 
@@ -100,7 +100,7 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 - [ ] Imágenes ≤ 256x256 px
 - [ ] Imágenes ≤ 200 KB
 - [ ] Sonidos ≤ 50 KB
-- [ ] Al menos **2 sets de figuras distintos**
+- [x] Al menos **2 sets de figuras distintos**
 
 ---
 
@@ -118,16 +118,16 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 
 ## ⭐ Funcionalidades opcionales (PROMOCIÓN)
 
-- [ ] Modo competitivo (2 jugadores)
+- [x] Modo competitivo (2 jugadores)
 - [ ] Turnos visibles por jugador
-- [ ] Puntajes individuales
-- [ ] Ingreso de nombre para cada jugador desde SDL
+- [x] Puntajes individuales
+- [x] Ingreso de nombre para cada jugador desde SDL
 - [ ] Estadísticas por usuario
-- [ ] Sonidos:
+- [x] Sonidos:
   - [ ] Selección primera carta
-  - [ ] Acierto
-  - [ ] Error
-- [ ] Efecto hover al pasar el mouse por una carta
+  - [x] Acierto
+  - [x] Error
+- [x] Efecto hover al pasar el mouse por una carta
 
 ---
 
