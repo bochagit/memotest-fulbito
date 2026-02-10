@@ -358,14 +358,24 @@ void memoria_renderizar(tMemoria *m, SDL_Renderer *renderer)
                 SDL_RenderFillRect(renderer, &dst);
             }
         } else {
-            /* Dorso de la carta */
-            SDL_SetRenderDrawColor(renderer, 70, 70, 120, 255);
+            /* Dorso de la carta - TRANSPARENTE CON BORDE */
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 150, 150, 200, 255);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
             SDL_RenderDrawRect(renderer, &dst);
-            /* Diseño interior */
-            SDL_SetRenderDrawColor(renderer, 90, 90, 140, 255);
-            SDL_Rect interior = { dst.x+8, dst.y+8, dst.w-16, dst.h-16 };
+
+            /* Borde exterior blanco/azul grueso */
+            SDL_SetRenderDrawColor(renderer, 50, 255, 85, 255);
+            for (int b = 0; b < 4; ++b) {
+                SDL_Rect borde = { dst.x + b, dst.y + b,
+                                   dst.w - b*2, dst.h - b*2 };
+                SDL_RenderDrawRect(renderer, &borde);
+            }
+
+            /* Borde interior decorativo */
+            SDL_SetRenderDrawColor(renderer, 50, 255, 85, 255);
+            SDL_Rect interior = { dst.x + 10, dst.y + 10,
+                                  dst.w - 20, dst.h - 20 };
             SDL_RenderDrawRect(renderer, &interior);
         }
 

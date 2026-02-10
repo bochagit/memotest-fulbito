@@ -68,7 +68,7 @@ tError juego_inicializar(tJuego *juego)
         fprintf(stderr, "Aviso: no se pudieron cargar todos los formatos de imagen\n");
     }
 
-    juego->fondo = imagenes_cargar_gpu(juego->renderer, "img/background.jpg");
+    juego->fondo = imagenes_cargar_gpu(juego->renderer, "img/background2.jpg");
 
     /* ---- Framebuffers ---- */
     for (int i = 0; i < FB_CANT; ++i)
@@ -89,6 +89,7 @@ tError juego_inicializar(tJuego *juego)
     /* ---- Menú gráfico ---- */
     juego->nombreJugador2[0] = '\0';
     tError errMenu = menu_mostrar(juego->renderer, juego->fuenteChica,
+                                  "img/fondo_presentacion.png",
                                   &juego->configuracion,
                                   juego->nombreJugador2,
                                   sizeof(juego->nombreJugador2));

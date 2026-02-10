@@ -4,14 +4,10 @@
  */
 
 #include "menu.h"
+#include "imagenes.h"
 #include "texto.h"
 #include <string.h>
 #include <stdio.h>
-
-/* ---- Colores del menú ---- */
-#define FONDO_R  30
-#define FONDO_G  30
-#define FONDO_B  60
 
 typedef struct {
     SDL_Rect rect;
@@ -58,14 +54,15 @@ static int _dentro(const SDL_Rect *r, int mx, int my)
 
 /* ---- Función pública ---- */
 
-tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
-                    tConfig *cfg, char *nombreJugador2, size_t maxLen)
+tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, tConfig *cfg, char *nombreJugador2, size_t maxLen)
 {
     if (!renderer || !fuente || !cfg) return ERR_MEMORIA;
 
     int anchoV, altoV;
     SDL_GetRendererOutputSize(renderer, &anchoV, &altoV);
     int centroX = anchoV / 2;
+
+    SDL_Texture *fondo = imagenes_cargar_gpu(renderer, fondoPath);
 
     /* ---- Definir opciones ---- */
     int anchoBtn = 150;
@@ -132,12 +129,16 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
         }
 
         /* ---- Render ---- */
-        SDL_SetRenderDrawColor(renderer, FONDO_R, FONDO_G, FONDO_B, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        if (fondo) {
+            SDL_RenderCopy(renderer, fondo, NULL, NULL);
+        }
 
         /* Título */
         SDL_Texture *tTitulo = texto_crear_textura(renderer, fuente,
-            "JUEGO DE LA MEMORIA", (SDL_Color){255, 255, 100, 255});
+            "MEMOTEST - FULBITO", (SDL_Color){255, 255, 100, 255});
         if (tTitulo) {
             int w, h; SDL_QueryTexture(tTitulo, NULL, NULL, &w, &h);
             SDL_Rect dst = { centroX - w/2, 30, w, h };
@@ -230,9 +231,6 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
                 ultimoBlink = ahora;
             }
 
-            SDL_SetRenderDrawColor(renderer, FONDO_R, FONDO_G, FONDO_B, 255);
-            SDL_RenderClear(renderer);
-
             SDL_Color blanco = {255,255,255,255};
             SDL_Texture *tInst = texto_crear_textura(renderer, fuente,
                 "Nombre del Jugador 2 (ENTER para continuar):", blanco);
@@ -259,6 +257,10 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
         SDL_StopTextInput();
         strncpy(nombreJugador2, buffer, maxLen - 1);
         nombreJugador2[maxLen - 1] = '\0';
+    }
+
+        if (fondo) {
+        SDL_DestroyTexture(fondo);
     }
 
     return TODO_OK;

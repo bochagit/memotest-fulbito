@@ -41,7 +41,7 @@ tFormatosSnd sonidos_inicializar(void)
         return SONIDO_ERR;
     }
 
-    Mix_Volume(-1, 50); // Reducion del volumen al 50% de forma fija a efectos de no molestar a quien inicie esta demo
+    Mix_Volume(-1, 20); // Reducion del volumen al 20% de forma fija a efectos de no molestar a quien inicie esta demo
 
     return formatosSnd;
 }

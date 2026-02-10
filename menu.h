@@ -10,7 +10,6 @@
 /*
   Muestra el menú gráfico de configuración.
  */
-tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
-                    tConfig *cfg, char *nombreJugador2, size_t maxLen);
+tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, tConfig *cfg, char *nombreJugador2, size_t maxLen);
 
 #endif // MENU_H_INCLUDED
