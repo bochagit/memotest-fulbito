@@ -49,7 +49,7 @@ tError juego_inicializar(tJuego *juego)
     tFormatosSnd fmtSnd = sonidos_inicializar();
     if (fmtSnd != SONIDO_ERR) {
         juego->audioInicializado = 1;
-        juego->melodia = sonidos_cargar("snd/melodia.mp3");
+        juego->melodia = sonidos_cargar("snd/melodia2.mp3");
         if (!juego->melodia) {
             fprintf(stderr, "Aviso: melodia.mp3 no encontrada\n");
         }
@@ -68,7 +68,7 @@ tError juego_inicializar(tJuego *juego)
         fprintf(stderr, "Aviso: no se pudieron cargar todos los formatos de imagen\n");
     }
 
-    juego->fondo = imagenes_cargar_gpu(juego->renderer, "img/background2.jpg");
+    juego->fondo = imagenes_cargar_gpu(juego->renderer, "img/background.jpg");
 
     /* ---- Framebuffers ---- */
     for (int i = 0; i < FB_CANT; ++i)
