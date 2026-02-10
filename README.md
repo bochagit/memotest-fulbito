@@ -69,10 +69,10 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
   - [x] 4x4 (8 pares)
   - [x] 4x5 (10 pares)
 - [x] Cartas ordenadas aleatoriamente al iniciar
-- [ ] Cada par tiene puntaje asignado aleatoriamente
+- [x] Cada par tiene puntaje asignado aleatoriamente
 - [x] Detección de pares correctos / incorrectos
 - [x] Sistema de puntuación
-- [ ] Sistema de rachas de aciertos
+- [x] Sistema de rachas de aciertos
 - [x] Estadísticas de juego visibles
 
 ---
@@ -88,7 +88,7 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ## ⚙️ Configuración persistente
 - [x] Menú gráfico de configuración
 - [x] Guardar configuración en archivo
-- [ ] Cargar configuración al iniciar
+- [x] Cargar configuración al iniciar
 - [x] Configurar:
   - [x] Dimensiones del tablero
   - [x] Set de figuras
