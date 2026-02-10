@@ -32,11 +32,11 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ---
 
 ## ⚙️ Base técnica del proyecto
-- [ ] Inicialización correcta de SDL2
-- [ ] Uso de SDL_Renderer (no software rendering)
-- [ ] Manejo de eventos (mouse, teclado, ventana)
-- [ ] Liberación correcta de recursos
-- [ ] Compilación sin warnings
+- [x] Inicialización correcta de SDL2
+- [x] Uso de SDL_Renderer (no software rendering)
+- [x] Manejo de eventos (mouse, teclado, ventana)
+- [x] Liberación correcta de recursos
+- [x] Compilación sin warnings
 
 ---
 
@@ -87,7 +87,7 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 
 ## ⚙️ Configuración persistente
 - [x] Menú gráfico de configuración
-- [ ] Guardar configuración en archivo
+- [x] Guardar configuración en archivo
 - [ ] Cargar configuración al iniciar
 - [x] Configurar:
   - [x] Dimensiones del tablero
