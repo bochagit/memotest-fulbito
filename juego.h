@@ -40,6 +40,7 @@ typedef struct {
     char          nombreJugador2[32];
     tConfig       configuracion;
     tMemoria     *partida;
+    uint8_t highscoreGuardado;
 } tJuego;
 
 tError juego_inicializar(tJuego *juego);

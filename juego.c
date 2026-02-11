@@ -6,6 +6,7 @@
  */
 
 #include "juego.h"
+#include "highscores.h"
 #include "graficos.h"
 #include "texto.h"
 #include "imagenes.h"
@@ -88,15 +89,33 @@ tError juego_inicializar(tJuego *juego)
 
     /* ---- Menú gráfico ---- */
     juego->nombreJugador2[0] = '\0';
-    tError errMenu = menu_mostrar(juego->renderer, juego->fuenteChica,
-                                  "img/fondo_presentacion.png",
-                                  &juego->configuracion,
-                                  juego->nombreJugador2,
-                                  sizeof(juego->nombreJugador2));
-    if (errMenu != TODO_OK) {
-        juego->corriendo = 0;
-        return errMenu;
+/* ---- Menú gráfico (Navegación con Highscores) ---- */
+    juego->nombreJugador2[0] = '\0';
+    int navegando = 1;
+
+    while (navegando) {
+        tAccionMenu accion = menu_mostrar(juego->renderer,
+                                          juego->fuenteChica,
+                                          "img/fondo_presentacion.png",
+                                          &juego->configuracion,
+                                          juego->nombreJugador2,
+                                          sizeof(juego->nombreJugador2));
+
+        if (accion == ACCION_VER_SCORES) {
+            // Mostramos la tabla y, al salir de esta función, el bucle repite el menú
+            menu_mostrar_highscores(juego->renderer, juego->fuenteChica, "img/fondo_presentacion.png");
+        }
+        else if (accion == ACCION_JUGAR) {
+            // Salimos del bucle para continuar con la creación de la partida abajo
+            navegando = 0;
+        }
+        else {
+            // Si cerró la ventana o hubo error (ACCION_SALIR)
+            juego->corriendo = 0;
+            return ERR_SDL;
+        }
     }
+
 
     /* Guardar configuración para la próxima sesión */
     config_guardar(RUTA_CONFIG, &juego->configuracion);
@@ -227,6 +246,20 @@ void juego_renderizar(tJuego *juego)
 
         /* Mensaje de fin de partida */
         if (terminada) {
+            if (!juego->highscoreGuardado) {
+            int ptsFinales = 0;
+            // Obtenemos los puntos del jugador 1 (o el total)
+            memoria_obtener_estadisticas(juego->partida, &ptsFinales, NULL, NULL, NULL);
+
+            const char *nombre = juego->nombreJugador1[0] ? juego->nombreJugador1 : "Jugador";
+
+            // USAMOS EL NOMBRE CORRECTO DE TU FUNCIÓN:
+            highscores_insertar(nombre, ptsFinales,juego->configuracion.filas,juego->configuracion.columnas);
+
+            juego->highscoreGuardado = 1; // Para que no guarde mil veces por segundo
+            printf("Puntaje de %s (%d pts) guardado en el ranking.\n", nombre, ptsFinales);
+            }
+
             const char *msgFin = "Partida terminada! (ESC para salir)";
             if (juego->configuracion.cantJugadores == 2) {
                 int p0=0, p1=0;
