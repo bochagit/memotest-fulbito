@@ -80,7 +80,7 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ## 🧑‍💻 Interfaz gráfica (SDL)
 - [x] Ingreso de nombre del jugador **desde la interfaz gráfica**
 - [x] Visualización de puntaje
-- [ ] Visualización de estadísticas
+- [x] Visualización de estadísticas
 - [x] NO usar consola para interacción con el usuario
 
 ---
@@ -97,9 +97,9 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ---
 
 ## 🖼️ Recursos gráficos y sonido (RESTRICCIONES)
-- [ ] Imágenes ≤ 256x256 px
-- [ ] Imágenes ≤ 200 KB
-- [ ] Sonidos ≤ 50 KB
+- [x] Imágenes ≤ 256x256 px
+- [x] Imágenes ≤ 200 KB
+- [x] Sonidos ≤ 50 KB
 - [x] Al menos **2 sets de figuras distintos**
 
 ---
@@ -119,12 +119,12 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ## ⭐ Funcionalidades opcionales (PROMOCIÓN)
 
 - [x] Modo competitivo (2 jugadores)
-- [ ] Turnos visibles por jugador
+- [x] Turnos visibles por jugador
 - [x] Puntajes individuales
 - [x] Ingreso de nombre para cada jugador desde SDL
-- [ ] Estadísticas por usuario
+- [x] Estadísticas por usuario
 - [x] Sonidos:
-  - [ ] Selección primera carta
+  - [x] Selección primera carta
   - [x] Acierto
   - [x] Error
 - [x] Efecto hover al pasar el mouse por una carta
