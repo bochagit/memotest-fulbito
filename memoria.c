@@ -83,6 +83,7 @@ struct sMemoria {
     int usarSonidos;
     tSonido *sonidoAcierto;
     tSonido *sonidoFallo;
+    tSonido *sonidoPrimera;
     int cartaHover;        /* -1 ninguna */
 };
 
@@ -227,9 +228,11 @@ tMemoria* memoria_crear(SDL_Renderer *renderer, int filas, int columnas,
     m->usarSonidos   = usarSonidos;
     m->sonidoAcierto = NULL;
     m->sonidoFallo   = NULL;
+    m->sonidoPrimera = NULL;
     if (usarSonidos) {
         m->sonidoAcierto = sonidos_cargar("snd/Acierto_parejas.mp3");
         m->sonidoFallo   = sonidos_cargar("snd/No_acierto.mp3");
+        m->sonidoPrimera = sonidos_cargar("snd/Seleccion_primera.mp3");
     }
     return m;
 }
@@ -246,6 +249,7 @@ void memoria_destruir(tMemoria *m)
     vector_destroy(m->cartas);
     if (m->sonidoAcierto) sonidos_destruir(m->sonidoAcierto);
     if (m->sonidoFallo)   sonidos_destruir(m->sonidoFallo);
+    if (m->sonidoPrimera) sonidos_destruir(m->sonidoPrimera);
     free(m);
 }
 
@@ -285,6 +289,7 @@ tError memoria_procesar_evento(tMemoria *m, const SDL_Event *ev)
                 if (m->seleccionado1 == -1) {
                     c->descubierta = 1;
                     m->seleccionado1 = (int)i;
+                    if (m->usarSonidos && m->sonidoPrimera) sonidos_reproducir(m->sonidoPrimera, 1);
                 } else if (m->seleccionado1 != (int)i) {
                     c->descubierta = 1;
                     m->seleccionado2 = (int)i;

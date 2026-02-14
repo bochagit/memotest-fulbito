@@ -37,7 +37,7 @@ tError presentacion_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char
     SDL_GetRendererOutputSize(renderer, &anchoVentana, &altoVentana);
 
     /* Dimensiones del recuadro centrado */
-    int recuadroAncho = 600;
+    int recuadroAncho = 800;
     int recuadroAlto  = 180;
     if (recuadroAncho > anchoVentana - 40) recuadroAncho = anchoVentana - 40;
     int recuadroX = (anchoVentana - recuadroAncho) / 2;
