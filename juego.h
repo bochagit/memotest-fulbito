@@ -13,7 +13,7 @@
 #define LOOP_DELAY      16
 #define ANCHO_VENTANA  1024
 #define ALTO_VENTANA    768
-#define RUTA_CONFIG    "config.cfg"
+#define RUTA_CONFIG    "config.txt"
 
 /* Capas de renderizado */
 typedef enum {

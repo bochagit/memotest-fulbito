@@ -83,6 +83,7 @@ struct sMemoria {
     int usarSonidos;
     tSonido *sonidoAcierto;
     tSonido *sonidoFallo;
+    tSonido *sonidoPrimera;
     int cartaHover;        /* -1 ninguna */
 };
 
@@ -227,9 +228,11 @@ tMemoria* memoria_crear(SDL_Renderer *renderer, int filas, int columnas,
     m->usarSonidos   = usarSonidos;
     m->sonidoAcierto = NULL;
     m->sonidoFallo   = NULL;
+    m->sonidoPrimera = NULL;
     if (usarSonidos) {
         m->sonidoAcierto = sonidos_cargar("snd/Acierto_parejas.mp3");
         m->sonidoFallo   = sonidos_cargar("snd/No_acierto.mp3");
+        m->sonidoPrimera = sonidos_cargar("snd/Seleccion_primera.mp3");
     }
     return m;
 }
@@ -246,6 +249,7 @@ void memoria_destruir(tMemoria *m)
     vector_destroy(m->cartas);
     if (m->sonidoAcierto) sonidos_destruir(m->sonidoAcierto);
     if (m->sonidoFallo)   sonidos_destruir(m->sonidoFallo);
+    if (m->sonidoPrimera) sonidos_destruir(m->sonidoPrimera);
     free(m);
 }
 
@@ -285,6 +289,7 @@ tError memoria_procesar_evento(tMemoria *m, const SDL_Event *ev)
                 if (m->seleccionado1 == -1) {
                     c->descubierta = 1;
                     m->seleccionado1 = (int)i;
+                    if (m->usarSonidos && m->sonidoPrimera) sonidos_reproducir(m->sonidoPrimera, 1);
                 } else if (m->seleccionado1 != (int)i) {
                     c->descubierta = 1;
                     m->seleccionado2 = (int)i;
@@ -358,33 +363,24 @@ void memoria_renderizar(tMemoria *m, SDL_Renderer *renderer)
                 SDL_RenderFillRect(renderer, &dst);
             }
         } else {
-            /* Dorso de la carta - TRANSPARENTE CON BORDE */
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+            /* Dorso de la carta – 80% transparencia para apreciar el fondo */
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 70, 70, 120, 51);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+            SDL_SetRenderDrawColor(renderer, 0, 200, 0, 51);
             SDL_RenderDrawRect(renderer, &dst);
-
-            /* Borde exterior blanco/azul grueso */
-            SDL_SetRenderDrawColor(renderer, 50, 255, 85, 255);
-            for (int b = 0; b < 4; ++b) {
-                SDL_Rect borde = { dst.x + b, dst.y + b,
-                                   dst.w - b*2, dst.h - b*2 };
-                SDL_RenderDrawRect(renderer, &borde);
-            }
-
-            /* Borde interior decorativo */
-            SDL_SetRenderDrawColor(renderer, 50, 255, 85, 255);
-            SDL_Rect interior = { dst.x + 10, dst.y + 10,
-                                  dst.w - 20, dst.h - 20 };
+            /* Diseño interior */
+            SDL_SetRenderDrawColor(renderer, 0, 180, 0, 51);
+            SDL_Rect interior = { dst.x+8, dst.y+8, dst.w-16, dst.h-16 };
             SDL_RenderDrawRect(renderer, &interior);
         }
 
         /* Efecto hover */
         if ((int)i == m->cartaHover && !c->encontrada) {
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 100, 50);
+            SDL_SetRenderDrawColor(renderer, 0, 200, 0, 50);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 200);
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 200);
             SDL_RenderDrawRect(renderer, &dst);
         }
     }

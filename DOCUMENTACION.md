@@ -6,7 +6,7 @@ pares de figuras ocultas en un tablero. Incluye:
 
 - Pantalla de presentación con fondo e ingreso de nombre por SDL (sin consola).
 - Menú gráfico para configurar dimensiones, set de figuras y cantidad de jugadores.
-- Configuración persistente entre sesiones (`config.cfg`).
+- Configuración persistente entre sesiones (`config.txt`).
 - Sistema de puntuación con racha de aciertos consecutivos.
 - Dos sets de figuras: clubes argentinos y Champions League (imágenes).
 - Modo competitivo de 2 jugadores con turnos.
@@ -38,7 +38,7 @@ Todas las bibliotecas ya están incluidas en la carpeta `lib/` del proyecto.
 ├── memoria.c / memoria.h   # Lógica del juego de memoria
 ├── presentacion.c / presentacion.h  # Pantalla de presentación
 ├── menu.c / menu.h     # Menú gráfico de configuración
-├── config.c / config.h # Configuración persistente (config.cfg)
+├── config.c / config.h # Configuración persistente (config.txt)
 ├── vector.c / vector.h # TDA Vector (memoria dinámica)
 ├── graficos.c / graficos.h  # Motor de renderizado
 ├── imagenes.c / imagenes.h  # Carga de imágenes (SDL_image)
@@ -47,7 +47,7 @@ Todas las bibliotecas ya están incluidas en la carpeta `lib/` del proyecto.
 ├── hud.c / hud.h       # Sistema HUD genérico
 ├── errores.c / errores.h    # Códigos de error
 ├── SDL_Ejemplo_Avanzado.cbp  # Proyecto de CodeBlocks
-├── config.cfg           # Configuración guardada (se crea automáticamente)
+├── config.txt           # Configuración guardada (se crea automáticamente)
 ├── img/                 # Imágenes (fondos, figuras de parejas)
 ├── snd/                 # Sonidos (acierto, fallo, presentación, melodía)
 ├── fnt/                 # Fuentes TTF
@@ -122,7 +122,7 @@ Al ejecutar se mostrará:
 
 ## Configuración persistente
 
-El archivo `config.cfg` se crea automáticamente con formato:
+El archivo `config.txt` se crea automáticamente con formato:
 ```
 filas=3
 columnas=4

@@ -6,6 +6,7 @@
 #include "menu.h"
 #include "imagenes.h"
 #include "texto.h"
+#include "imagenes.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -58,6 +59,9 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
 {
     if (!renderer || !fuente || !cfg) return ERR_MEMORIA;
 
+    /* Cargar imagen de fondo */
+    SDL_Texture *fondoConfig = imagenes_cargar_gpu(renderer, "img/fondo_config.png");
+
     int anchoV, altoV;
     SDL_GetRendererOutputSize(renderer, &anchoV, &altoV);
     int centroX = anchoV / 2;
@@ -105,7 +109,7 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
     while (!listo) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
-            if (ev.type == SDL_QUIT) return ERR_SDL;
+            if (ev.type == SDL_QUIT) { if (fondoConfig) SDL_DestroyTexture(fondoConfig); return ERR_SDL; }
             if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
                 int mx = ev.button.x, my = ev.button.y;
 
@@ -132,8 +136,14 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+<<<<<<< HEAD
         if (fondo) {
             SDL_RenderCopy(renderer, fondo, NULL, NULL);
+=======
+        /* Fondo de configuración */
+        if (fondoConfig) {
+            SDL_RenderCopy(renderer, fondoConfig, NULL, NULL);
+>>>>>>> Yanil
         }
 
         /* Título */
@@ -204,7 +214,7 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
         while (!terminado) {
             SDL_Event ev;
             while (SDL_PollEvent(&ev)) {
-                if (ev.type == SDL_QUIT) { SDL_StopTextInput(); return ERR_SDL; }
+                if (ev.type == SDL_QUIT) { SDL_StopTextInput(); if (fondoConfig) SDL_DestroyTexture(fondoConfig); return ERR_SDL; }
                 if (ev.type == SDL_TEXTINPUT) {
                     size_t agregar = strlen(ev.text.text);
                     if (len + agregar < sizeof(buffer) && len + agregar < maxLen) {
@@ -259,9 +269,13 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
         nombreJugador2[maxLen - 1] = '\0';
     }
 
+<<<<<<< HEAD
         if (fondo) {
         SDL_DestroyTexture(fondo);
     }
+=======
+    if (fondoConfig) SDL_DestroyTexture(fondoConfig);
+>>>>>>> Yanil
 
     return TODO_OK;
 }
