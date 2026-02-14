@@ -136,14 +136,9 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-<<<<<<< HEAD
-        if (fondo) {
-            SDL_RenderCopy(renderer, fondo, NULL, NULL);
-=======
         /* Fondo de configuración */
         if (fondoConfig) {
             SDL_RenderCopy(renderer, fondoConfig, NULL, NULL);
->>>>>>> Yanil
         }
 
         /* Título */
