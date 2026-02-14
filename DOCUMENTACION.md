@@ -8,6 +8,7 @@ pares de figuras ocultas en un tablero. Incluye:
 - Menú gráfico para configurar dimensiones, set de figuras y cantidad de jugadores.
 - Configuración persistente entre sesiones (`config.txt`).
 - Sistema de puntuación con racha de aciertos consecutivos.
+- Ranking Top 10 persistente en archivo (`ranking.txt`).
 - Dos sets de figuras: clubes argentinos y Champions League (imágenes).
 - Modo competitivo de 2 jugadores con turnos.
 - Sonidos de acierto, fallo y presentación.
@@ -39,6 +40,7 @@ Todas las bibliotecas ya están incluidas en la carpeta `lib/` del proyecto.
 ├── presentacion.c / presentacion.h  # Pantalla de presentación
 ├── menu.c / menu.h     # Menú gráfico de configuración
 ├── config.c / config.h # Configuración persistente (config.txt)
+├── ranking.c / ranking.h # Ranking Top 10 (ranking.txt)
 ├── vector.c / vector.h # TDA Vector (memoria dinámica)
 ├── graficos.c / graficos.h  # Motor de renderizado
 ├── imagenes.c / imagenes.h  # Carga de imágenes (SDL_image)
@@ -48,6 +50,7 @@ Todas las bibliotecas ya están incluidas en la carpeta `lib/` del proyecto.
 ├── errores.c / errores.h    # Códigos de error
 ├── SDL_Ejemplo_Avanzado.cbp  # Proyecto de CodeBlocks
 ├── config.txt           # Configuración guardada (se crea automáticamente)
+├── ranking.txt          # Ranking Top 10 (se crea automáticamente)
 ├── img/                 # Imágenes (fondos, figuras de parejas)
 ├── snd/                 # Sonidos (acierto, fallo, presentación, melodía)
 ├── fnt/                 # Fuentes TTF
@@ -98,7 +101,7 @@ Al ejecutar se mostrará:
 2. **Menú de configuración** – seleccionar dimensiones (3×4, 4×4, 4×5), 
    set de figuras y cantidad de jugadores. Hacer clic en **JUGAR**.
 3. **Partida** – hacer clic en las cartas para revelarlas. Encontrar los pares.
-4. Al terminar se muestra el resultado. Presionar ESC para salir.
+4. Al terminar se muestra el **Ranking Top 10** con los mejores puntajes. Presionar ESC para salir.
 
 ---
 
@@ -130,6 +133,21 @@ set=1
 jugadores=1
 ```
 Se carga al iniciar y se guarda al confirmar el menú.
+
+## Ranking Top 10
+
+Al finalizar cada partida, el puntaje del jugador (o de ambos jugadores en modo
+competitivo) se guarda automáticamente en `ranking.txt`. El archivo almacena
+las mejores 10 puntuaciones con formato:
+
+```
+nombre;puntaje
+```
+
+Las entradas se ordenan de mayor a menor puntaje mediante **selección directa**
+(`ranking_ordenar_seleccion`) implementada sobre el TDA Vector con punteros
+genéricos. Al terminar la partida, se muestra en pantalla el ranking completo
+con colores diferenciados para los tres primeros puestos (dorado, plata, bronce).
 
 ## Controles
 

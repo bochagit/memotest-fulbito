@@ -158,6 +158,35 @@ void juego_actualizar(tJuego *juego)
 
     if (juego->partida)
         memoria_actualizar(juego->partida, delta);
+
+    /* ---- Guardar ranking al terminar la partida (una sola vez) ---- */
+    if (juego->partida && memoria_partida_terminada(juego->partida)
+        && !juego->rankingGuardado)
+    {
+        juego->ranking = ranking_cargar(RUTA_RANKING);
+        if (juego->ranking)
+        {
+            if (juego->configuracion.cantJugadores == 2)
+            {
+                int p0 = 0, p1 = 0;
+                memoria_obtener_estadisticas_jugador(juego->partida, 0, &p0, NULL, NULL, NULL);
+                memoria_obtener_estadisticas_jugador(juego->partida, 1, &p1, NULL, NULL, NULL);
+                const char *n1 = juego->nombreJugador1[0] ? juego->nombreJugador1 : "Jugador 1";
+                const char *n2 = juego->nombreJugador2[0] ? juego->nombreJugador2 : "Jugador 2";
+                ranking_agregar(juego->ranking, n1, p0);
+                ranking_agregar(juego->ranking, n2, p1);
+            }
+            else
+            {
+                int pts = 0;
+                memoria_obtener_estadisticas(juego->partida, &pts, NULL, NULL, NULL);
+                const char *nombre = juego->nombreJugador1[0] ? juego->nombreJugador1 : "Jugador";
+                ranking_agregar(juego->ranking, nombre, pts);
+            }
+            ranking_guardar(RUTA_RANKING, juego->ranking);
+        }
+        juego->rankingGuardado = 1;
+    }
 }
 
 
@@ -224,31 +253,12 @@ void juego_renderizar(tJuego *juego)
             }
         }
 
-        /* Mensaje de fin de partida */
-        if (terminada) {
-            const char *msgFin = "Partida terminada! (ESC para salir)";
-            if (juego->configuracion.cantJugadores == 2) {
-                int p0=0, p1=0;
-                memoria_obtener_estadisticas_jugador(juego->partida, 0, &p0, NULL, NULL, NULL);
-                memoria_obtener_estadisticas_jugador(juego->partida, 1, &p1, NULL, NULL, NULL);
-                if (p0 > p1) msgFin = "Gana Jugador 1! (ESC para salir)";
-                else if (p1 > p0) msgFin = "Gana Jugador 2! (ESC para salir)";
-                else msgFin = "Empate! (ESC para salir)";
-            }
-            SDL_Texture *tFin = texto_crear_textura(juego->renderer,
-                juego->fuenteGrande, msgFin, (SDL_Color){255,200,50,255});
-            if (tFin) {
-                int w, h; SDL_QueryTexture(tFin, NULL, NULL, &w, &h);
-                SDL_Rect dst = { (int)(juego->anchoVentana/2 - w/2),
-                                 (int)(juego->altoVentana/2 - h/2), w, h };
-                /* Fondo oscuro detrás del texto */
-                SDL_Rect bg = { dst.x - 20, dst.y - 10, dst.w + 40, dst.h + 20 };
-                SDL_SetRenderDrawBlendMode(juego->renderer, SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(juego->renderer, 0, 0, 0, 180);
-                SDL_RenderFillRect(juego->renderer, &bg);
-                SDL_RenderCopy(juego->renderer, tFin, NULL, &dst);
-                SDL_DestroyTexture(tFin);
-            }
+        /* Pantalla de ranking al terminar la partida */
+        if (terminada && juego->ranking) {
+            ranking_renderizar(juego->renderer, juego->fuenteGrande,
+                               juego->fuenteChica, juego->ranking,
+                               (int)juego->anchoVentana,
+                               (int)juego->altoVentana);
         }
     }
 
@@ -260,6 +270,11 @@ void juego_renderizar(tJuego *juego)
 
 void juego_destruir(tJuego *juego)
 {
+    if (juego->ranking) {
+        vector_destroy(juego->ranking);
+        juego->ranking = NULL;
+    }
+
     if (juego->partida) {
         memoria_destruir(juego->partida);
         juego->partida = NULL;
