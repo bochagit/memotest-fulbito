@@ -358,13 +358,14 @@ void memoria_renderizar(tMemoria *m, SDL_Renderer *renderer)
                 SDL_RenderFillRect(renderer, &dst);
             }
         } else {
-            /* Dorso de la carta */
-            SDL_SetRenderDrawColor(renderer, 70, 70, 120, 255);
+            /* Dorso de la carta – 80% transparencia para apreciar el fondo */
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 70, 70, 120, 51);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 150, 150, 200, 255);
+            SDL_SetRenderDrawColor(renderer, 0, 200, 0, 51);
             SDL_RenderDrawRect(renderer, &dst);
             /* Diseño interior */
-            SDL_SetRenderDrawColor(renderer, 90, 90, 140, 255);
+            SDL_SetRenderDrawColor(renderer, 0, 180, 0, 51);
             SDL_Rect interior = { dst.x+8, dst.y+8, dst.w-16, dst.h-16 };
             SDL_RenderDrawRect(renderer, &interior);
         }
@@ -372,9 +373,9 @@ void memoria_renderizar(tMemoria *m, SDL_Renderer *renderer)
         /* Efecto hover */
         if ((int)i == m->cartaHover && !c->encontrada) {
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 100, 50);
+            SDL_SetRenderDrawColor(renderer, 0, 200, 0, 50);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 200);
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 200);
             SDL_RenderDrawRect(renderer, &dst);
         }
     }

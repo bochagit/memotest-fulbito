@@ -5,6 +5,7 @@
 
 #include "menu.h"
 #include "texto.h"
+#include "imagenes.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -63,6 +64,9 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
 {
     if (!renderer || !fuente || !cfg) return ERR_MEMORIA;
 
+    /* Cargar imagen de fondo */
+    SDL_Texture *fondoConfig = imagenes_cargar_gpu(renderer, "img/fondo_config.png");
+
     int anchoV, altoV;
     SDL_GetRendererOutputSize(renderer, &anchoV, &altoV);
     int centroX = anchoV / 2;
@@ -108,7 +112,7 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
     while (!listo) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
-            if (ev.type == SDL_QUIT) return ERR_SDL;
+            if (ev.type == SDL_QUIT) { if (fondoConfig) SDL_DestroyTexture(fondoConfig); return ERR_SDL; }
             if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
                 int mx = ev.button.x, my = ev.button.y;
 
@@ -134,6 +138,11 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
         /* ---- Render ---- */
         SDL_SetRenderDrawColor(renderer, FONDO_R, FONDO_G, FONDO_B, 255);
         SDL_RenderClear(renderer);
+
+        /* Fondo de configuración */
+        if (fondoConfig) {
+            SDL_RenderCopy(renderer, fondoConfig, NULL, NULL);
+        }
 
         /* Título */
         SDL_Texture *tTitulo = texto_crear_textura(renderer, fuente,
@@ -203,7 +212,7 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
         while (!terminado) {
             SDL_Event ev;
             while (SDL_PollEvent(&ev)) {
-                if (ev.type == SDL_QUIT) { SDL_StopTextInput(); return ERR_SDL; }
+                if (ev.type == SDL_QUIT) { SDL_StopTextInput(); if (fondoConfig) SDL_DestroyTexture(fondoConfig); return ERR_SDL; }
                 if (ev.type == SDL_TEXTINPUT) {
                     size_t agregar = strlen(ev.text.text);
                     if (len + agregar < sizeof(buffer) && len + agregar < maxLen) {
@@ -260,6 +269,8 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente,
         strncpy(nombreJugador2, buffer, maxLen - 1);
         nombreJugador2[maxLen - 1] = '\0';
     }
+
+    if (fondoConfig) SDL_DestroyTexture(fondoConfig);
 
     return TODO_OK;
 }
