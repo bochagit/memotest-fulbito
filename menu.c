@@ -264,13 +264,7 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
         nombreJugador2[maxLen - 1] = '\0';
     }
 
-<<<<<<< HEAD
-        if (fondo) {
-        SDL_DestroyTexture(fondo);
-    }
-=======
     if (fondoConfig) SDL_DestroyTexture(fondoConfig);
->>>>>>> Yanil
 
     return TODO_OK;
 }
