@@ -5,6 +5,7 @@
 
 #include "menu.h"
 #include "imagenes.h"
+#include "highscores.h"
 #include "texto.h"
 #include "imagenes.h"
 #include <string.h>
@@ -55,7 +56,7 @@ static int _dentro(const SDL_Rect *r, int mx, int my)
 
 /* ---- Función pública ---- */
 
-tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, tConfig *cfg, char *nombreJugador2, size_t maxLen)
+tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, tConfig *cfg, char *nombreJugador2, size_t maxLen)
 {
     if (!renderer || !fuente || !cfg) return ERR_MEMORIA;
 
@@ -94,7 +95,8 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
 
     /* Botón JUGAR */
     int jugarY = jugY + altoBtn + 90;
-    SDL_Rect botonJugar = { centroX - 100, jugarY, 200, 60 };
+    SDL_Rect botonJugar = { centroX - 210, jugarY, 200, 60 }; // Movido a la izquierda
+    SDL_Rect botonScores = { centroX + 10, jugarY, 200, 60 }; // Botón nuevo a la derecha
 
     /* Selección inicial según config */
     if      (cfg->filas == 4 && cfg->columnas == 5) dimOpc[2].seleccionado = 1;
@@ -105,8 +107,7 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
     jugOpc[cfg->cantJugadores == 2 ? 1 : 0].seleccionado = 1;
 
     /* ---- Loop del menú ---- */
-    int listo = 0;
-    while (!listo) {
+    while (1) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
             if (ev.type == SDL_QUIT) { if (fondoConfig) SDL_DestroyTexture(fondoConfig); return ERR_SDL; }
@@ -128,7 +129,8 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
                         for (int j = 0; j < 2; ++j) jugOpc[j].seleccionado = 0;
                         jugOpc[i].seleccionado = 1;
                     }
-                if (_dentro(&botonJugar, mx, my)) listo = 1;
+                if (_dentro(&botonJugar, mx, my)) return ACCION_JUGAR;
+                if (_dentro(&botonScores, mx, my)) return ACCION_VER_SCORES;
             }
         }
 
@@ -175,14 +177,25 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
         SDL_RenderFillRect(renderer, &botonJugar);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderDrawRect(renderer, &botonJugar);
-        SDL_Texture *tJugar = texto_crear_textura(renderer, fuente,
-            "JUGAR", (SDL_Color){255,255,255,255});
+        SDL_Texture *tJugar = texto_crear_textura(renderer, fuente, "JUGAR", (SDL_Color){255,255,255,255});
         if (tJugar) {
             int w, h; SDL_QueryTexture(tJugar, NULL, NULL, &w, &h);
-            SDL_Rect dst = { botonJugar.x + (botonJugar.w-w)/2,
-                             botonJugar.y + (botonJugar.h-h)/2, w, h };
+            SDL_Rect dst = { botonJugar.x + (botonJugar.w-w)/2, botonJugar.y + (botonJugar.h-h)/2, w, h };
             SDL_RenderCopy(renderer, tJugar, NULL, &dst);
             SDL_DestroyTexture(tJugar);
+        }
+
+        /* Botón SCORES */
+        SDL_SetRenderDrawColor(renderer, 60, 60, 200, 255); // Color azulado
+        SDL_RenderFillRect(renderer, &botonScores);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDrawRect(renderer, &botonScores);
+        SDL_Texture *tScores = texto_crear_textura(renderer, fuente, "SCORES", (SDL_Color){255,255,255,255});
+        if (tScores) {
+            int w, h; SDL_QueryTexture(tScores, NULL, NULL, &w, &h);
+            SDL_Rect dst = { botonScores.x + (botonScores.w-w)/2, botonScores.y + (botonScores.h-h)/2, w, h };
+            SDL_RenderCopy(renderer, tScores, NULL, &dst);
+            SDL_DestroyTexture(tScores);
         }
 
         SDL_RenderPresent(renderer);
@@ -267,4 +280,67 @@ tError menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoP
     if (fondoConfig) SDL_DestroyTexture(fondoConfig);
 
     return TODO_OK;
+}
+
+void menu_mostrar_highscores(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath) {
+    tEntradaScore lista[MAX_TOP];
+    int cant = highscores_cargar(lista);
+    SDL_Texture *fondo = imagenes_cargar_gpu(renderer, fondoPath);
+
+    int anchoV, altoV;
+    SDL_GetRendererOutputSize(renderer, &anchoV, &altoV);
+    int centroX = anchoV / 2;
+
+    int salir = 0;
+    while (!salir) {
+        SDL_Event ev;
+        while (SDL_PollEvent(&ev)) {
+            // Si cierran la ventana, salimos del programa
+            if (ev.type == SDL_QUIT) exit(0);
+            // Cualquier tecla o clic vuelve al menú principal
+            if (ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONDOWN) salir = 1;
+        }
+
+        SDL_RenderClear(renderer);
+        if (fondo) SDL_RenderCopy(renderer, fondo, NULL, NULL);
+
+        /* Título */
+        SDL_Texture *tTit = texto_crear_textura(renderer, fuente, "TOP 10 MEJORES PUNTAJES", (SDL_Color){255, 255, 100, 255});
+        if (tTit) {
+            int w, h; SDL_QueryTexture(tTit, NULL, NULL, &w, &h);
+            SDL_Rect dst = { centroX - w/2, 50, w, h };
+            SDL_RenderCopy(renderer, tTit, NULL, &dst);
+            SDL_DestroyTexture(tTit);
+        }
+
+        /* Lista de puntajes */
+        for (int i = 0; i < cant; i++) {
+            char buffer[256];
+            snprintf(buffer, sizeof(buffer), "%d. %s - %d Pts (%dx%d)",
+                     i+1, lista[i].nombre, lista[i].puntos, lista[i].filas, lista[i].columnas);
+
+            SDL_Texture *tLin = texto_crear_textura(renderer, fuente, buffer, (SDL_Color){255, 255, 255, 255});
+            if (tLin) {
+                int w, h; SDL_QueryTexture(tLin, NULL, NULL, &w, &h);
+                // Ajustamos el Y para que cada línea baje 35 píxeles
+                SDL_Rect dst = { centroX - w/2, 120 + i * 35, w, h };
+                SDL_RenderCopy(renderer, tLin, NULL, &dst);
+                SDL_DestroyTexture(tLin);
+            }
+        }
+
+        /* Mensaje al pie */
+        SDL_Texture *tVol = texto_crear_textura(renderer, fuente, "Click o Tecla para volver", (SDL_Color){180, 180, 180, 255});
+        if (tVol) {
+            int w, h; SDL_QueryTexture(tVol, NULL, NULL, &w, &h);
+            SDL_Rect dst = { centroX - w/2, altoV - 60, w, h };
+            SDL_RenderCopy(renderer, tVol, NULL, &dst);
+            SDL_DestroyTexture(tVol);
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+    }
+
+    if (fondo) SDL_DestroyTexture(fondo);
 }
