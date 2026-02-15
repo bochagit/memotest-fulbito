@@ -21,6 +21,8 @@
 #define PUNTOS_MAX         50
 #define TAM_CARTA_GEN     128   /* px para texturas generadas */
 #define MARGEN_SUPERIOR    80   /* px reservados arriba para HUD */
+#define BORDE_CARTA        4    /* grosor del borde de la carta */
+#define OPACIDAD_CARTA    100  /* opacidad del fondo de carta (0-255) */
 
 /* Rutas de imágenes: Set 1 – clubes argentinos */
 static const char *RUTAS_SET1[] = {
@@ -71,8 +73,10 @@ typedef struct {
 struct sMemoria {
     tVector *cartas;       /* vector de tCarta */
     tVector *texturas;     /* vector de SDL_Texture* (una por par) */
+    SDL_Texture *texturaReverso;
     int filas;
     int columnas;
+    int setFiguras;
     SDL_Renderer *renderer;
     int seleccionado1;
     int seleccionado2;
@@ -144,6 +148,33 @@ static void _calcular_rect_carta(tMemoria *m, int indice, SDL_Rect *dst,
     dst->h = h;
 }
 
+/* Dibuja el borde decorativo de una carta */
+static void _dibujar_borde_carta(SDL_Renderer *renderer, const SDL_Rect *rect, int encontrada)
+{
+    /* Borde exterior (más grueso) */
+    if (encontrada) {
+        SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);  /* Verde para encontradas */
+    } else {
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255); /* Gris oscuro */
+    }
+
+    for (int i = 0; i < BORDE_CARTA; ++i) {
+        SDL_Rect borde = { rect->x + i, rect->y + i,
+                          rect->w - i*2, rect->h - i*2 };
+        SDL_RenderDrawRect(renderer, &borde);
+    }
+
+    /* Borde interior decorativo */
+    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 200);
+    SDL_Rect bordeInt = {
+        rect->x + BORDE_CARTA + 2,
+        rect->y + BORDE_CARTA + 2,
+        rect->w - (BORDE_CARTA + 2) * 2,
+        rect->h - (BORDE_CARTA + 2) * 2
+    };
+    SDL_RenderDrawRect(renderer, &bordeInt);
+}
+
 /* ---- Funciones públicas ---- */
 
 tMemoria* memoria_crear(SDL_Renderer *renderer, int filas, int columnas,
@@ -159,12 +190,22 @@ tMemoria* memoria_crear(SDL_Renderer *renderer, int filas, int columnas,
     memset(m, 0, sizeof(tMemoria));
     m->filas        = filas;
     m->columnas     = columnas;
+    m->setFiguras   = setFiguras;
     m->renderer     = renderer;
     m->cantJugadores = (cantJugadores >= 2) ? 2 : 1;
     m->turnoActual  = 0;
     m->cartas   = vector_create(sizeof(tCarta));
     m->texturas = vector_create(sizeof(SDL_Texture*));
     if (!m->cartas || !m->texturas) { free(m); return NULL; }
+
+    const char *rutaDorso = NULL;
+    if (setFiguras == 1){
+        rutaDorso = "img/dorso_lpf.png";
+    } else if (setFiguras == 2){
+        rutaDorso = "img/dorso_champions.png";
+    }
+
+    if (rutaDorso) m->texturaReverso = imagenes_cargar_gpu(renderer, rutaDorso);
 
     srand((unsigned)time(NULL));
 
@@ -190,6 +231,7 @@ tMemoria* memoria_crear(SDL_Renderer *renderer, int filas, int columnas,
             }
             vector_destroy(m->texturas);
             vector_destroy(m->cartas);
+            if (m->texturaReverso) SDL_DestroyTexture(m->texturaReverso);
             free(m);
             return NULL;
         }
@@ -247,6 +289,7 @@ void memoria_destruir(tMemoria *m)
     }
     vector_destroy(m->texturas);
     vector_destroy(m->cartas);
+    if (m->texturaReverso) SDL_DestroyTexture(m->texturaReverso);
     if (m->sonidoAcierto) sonidos_destruir(m->sonidoAcierto);
     if (m->sonidoFallo)   sonidos_destruir(m->sonidoFallo);
     if (m->sonidoPrimera) sonidos_destruir(m->sonidoPrimera);
@@ -352,36 +395,70 @@ void memoria_renderizar(tMemoria *m, SDL_Renderer *renderer)
         _calcular_rect_carta(m, (int)i, &dst, anchoV, altoV);
 
         if (c->descubierta || c->encontrada) {
-            /* Mostrar la textura de la pareja */
+            /* Fondo semi-transparente blanco/gris claro */
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 250, 250, 250, OPACIDAD_CARTA);
+            SDL_RenderFillRect(renderer, &dst);
+
+            /* Calcular área para el logo (60% del tamaño de la carta, centrado) */
+            int logoSize = (dst.w < dst.h ? dst.w : dst.h) * 60 / 100;
+            SDL_Rect logoRect = {
+                dst.x + (dst.w - logoSize) / 2,
+                dst.y + (dst.h - logoSize) / 2,
+                logoSize,
+                logoSize
+            };
+
+            /* Mostrar la textura del logo centrado y más pequeño */
             SDL_Texture **pt = (SDL_Texture**)vector_get(m->texturas, c->indiceTextura);
-            if (pt && *pt) SDL_RenderCopy(renderer, *pt, NULL, &dst);
+            if (pt && *pt) SDL_RenderCopy(renderer, *pt, NULL, &logoRect);
+
+            /* Borde de la carta */
+            _dibujar_borde_carta(renderer, &dst, c->encontrada);
 
             if (c->encontrada) {
                 /* Overlay verde semi-transparente */
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(renderer, 0, 200, 0, 60);
+                SDL_SetRenderDrawColor(renderer, 0, 200, 0, 40);
                 SDL_RenderFillRect(renderer, &dst);
             }
         } else {
-            /* Dorso de la carta – 80% transparencia para apreciar el fondo */
+            /* Fondo semi-transparente para carta boca abajo */
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(renderer, 70, 70, 120, 51);
+            SDL_SetRenderDrawColor(renderer, 200, 200, 200, OPACIDAD_CARTA);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 0, 200, 0, 51);
-            SDL_RenderDrawRect(renderer, &dst);
-            /* Diseño interior */
-            SDL_SetRenderDrawColor(renderer, 0, 180, 0, 51);
-            SDL_Rect interior = { dst.x+8, dst.y+8, dst.w-16, dst.h-16 };
-            SDL_RenderDrawRect(renderer, &interior);
+
+            if (m->texturaReverso){
+                /* Calcular área para el dorso (70% del tamaño, centrado) */
+                int dorsoSize = (dst.w < dst.h ? dst.w : dst.h) * 70 / 100;
+                SDL_Rect dorsoRect = {
+                    dst.x + (dst.w - dorsoSize) / 2,
+                    dst.y + (dst.h - dorsoSize) / 2,
+                    dorsoSize,
+                    dorsoSize
+                };
+                SDL_RenderCopy(renderer, m->texturaReverso, NULL, &dorsoRect);
+            } else {
+                /* Fallback: patrón decorativo */
+                SDL_SetRenderDrawColor(renderer, 100, 120, 140, 100);
+                SDL_Rect interior = { dst.x + 15, dst.y + 15, dst.w - 30, dst.h - 30 };
+                SDL_RenderFillRect(renderer, &interior);
+            }
+
+            /* Borde de la carta */
+            _dibujar_borde_carta(renderer, &dst, 0);
         }
 
         /* Efecto hover */
         if ((int)i == m->cartaHover && !c->encontrada) {
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(renderer, 0, 200, 0, 50);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 60);
             SDL_RenderFillRect(renderer, &dst);
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 200);
-            SDL_RenderDrawRect(renderer, &dst);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            for (int b = 0; b < 3; ++b) {
+                SDL_Rect highlight = { dst.x + b, dst.y + b, dst.w - b*2, dst.h - b*2 };
+                SDL_RenderDrawRect(renderer, &highlight);
+            }
         }
     }
 }
