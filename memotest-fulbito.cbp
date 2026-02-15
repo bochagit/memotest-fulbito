@@ -88,6 +88,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="presentacion.h" />
+		<Unit filename="ranking.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ranking.h" />
 		<Unit filename="sonidos.c">
 			<Option compilerVar="CC" />
 		</Unit>

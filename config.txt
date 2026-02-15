@@ -1,4 +1,4 @@
-filas=4
+filas=3
 columnas=4
-set=1
+set=2
 jugadores=1

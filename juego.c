@@ -6,7 +6,6 @@
  */
 
 #include "juego.h"
-#include "highscores.h"
 #include "graficos.h"
 #include "texto.h"
 #include "imagenes.h"
