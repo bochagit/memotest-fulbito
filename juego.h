@@ -9,6 +9,7 @@
 #include "sonidos.h"
 #include "memoria.h"
 #include "config.h"
+#include "ranking.h"
 
 #define LOOP_DELAY      16
 #define ANCHO_VENTANA  1024
@@ -40,6 +41,8 @@ typedef struct {
     char          nombreJugador2[32];
     tConfig       configuracion;
     tMemoria     *partida;
+    tVector      *ranking;           /* ranking top 10 */
+    uint8_t       rankingGuardado;   /* 1 si ya se guardó el score */
 } tJuego;
 
 tError juego_inicializar(tJuego *juego);

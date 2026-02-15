@@ -103,6 +103,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="vector.h" />
+		<Unit filename="ranking.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ranking.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
