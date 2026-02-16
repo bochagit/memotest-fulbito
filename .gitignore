@@ -10,9 +10,14 @@
 *.so
 *.dll
 
+# === CONFIGURACIÓN Y DEMÁS ===
+*.txt
+
 # ==== CODE::BLOCKS ====
 *.layout
 *.depend
+*.cbp
+*.cscope_file_list
 
 # ==== CARPETAS DE BUILD ====
 bin/

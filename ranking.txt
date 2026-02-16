@@ -1,3 +1,6 @@
+gonza;239
 bocha;235
 bocha;235
 gonza;189
+gonza;183
+bocha;183
