@@ -27,7 +27,7 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
   - [ ] `/doc`
   - [ ] Archivos `.c` y `.h`
 - [ ] No incluir binarios, proyectos de IDE ni librerías
-- [ ] `main.c` contiene los datos de **TODOS** los integrantes con formato exacto
+- [x] `main.c` contiene los datos de **TODOS** los integrantes con formato exacto
 
 ---
 
@@ -105,14 +105,14 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 ---
 
 ## 📄 Documentación (OBLIGATORIA)
-- [ ] Documentación en `/doc`
-- [ ] Explica:
-  - [ ] Cómo instalar SDL2
-  - [ ] Cómo configurar Code::Blocks
-  - [ ] Cómo compilar el proyecto
-  - [ ] Cómo ejecutar el juego
-- [ ] Pensada para alguien sin experiencia previa
-- [ ] Útil para la defensa presencial
+- [x] Documentación en `/doc`
+- [x] Explica:
+  - [x] Cómo instalar SDL2
+  - [x] Cómo configurar Code::Blocks
+  - [x] Cómo compilar el proyecto
+  - [x] Cómo ejecutar el juego
+- [x] Pensada para alguien sin experiencia previa
+- [x] Útil para la defensa presencial
 
 ---
 
