@@ -23,6 +23,7 @@
 bin/
 obj/
 debug/
+bin/Debug
 
 # === LIBRERIAS ===
 lib/
