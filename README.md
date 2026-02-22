@@ -19,14 +19,14 @@ Desarrollar un videojuego tipo **Memotest** utilizando la biblioteca **SDL2**, c
 
 ### 🧱 Estructura y reglas formales (OBLIGATORIO)
 - [x] Nombre del grupo válido (RAE + ASCII 0x41–0x5A)
-- [ ] Archivo final: `TP_TOPICOS_2025_3C_NOMBREGRUPO.zip`
-- [ ] ZIP solo contiene:
-  - [ ] `/img`
-  - [ ] `/snd`
-  - [ ] `/fnt`
-  - [ ] `/doc`
-  - [ ] Archivos `.c` y `.h`
-- [ ] No incluir binarios, proyectos de IDE ni librerías
+- [x] Archivo final: `TP_TOPICOS_2025_3C_NOMBREGRUPO.zip`
+- [x] ZIP solo contiene:
+  - [x] `/img`
+  - [x] `/snd`
+  - [x] `/fnt`
+  - [x] `/doc`
+  - [x] Archivos `.c` y `.h`
+- [x] No incluir binarios, proyectos de IDE ni librerías
 - [x] `main.c` contiene los datos de **TODOS** los integrantes con formato exacto
 
 ---
