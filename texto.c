@@ -1,8 +1,3 @@
-/**
- * @file texto.c
- * @brief Implementacion del modulo 'texto'.
- */
-
 #include "texto.h"
 #include <stdio.h>
 

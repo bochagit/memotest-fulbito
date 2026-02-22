@@ -1,32 +1,35 @@
 /*
 Apellido(s), nombre(s): Cardozo, Gonzalo Daniel
 DNI: 43777470
-Entrega: SÌ
+Entrega: S√≠
 
 Apellido(s), nombre(s): Bruno, Yanil
 DNI: 36992182
-Entrega: SÌ
+Entrega: S√≠
 
 Apellido(s), nombre(s): De Rogatis, Ramiro Javier
 DNI: 44005090
-Entrega: SÌ
+Entrega: S√≠
 
-Apellido(s), nombre(s): Sgro, Nicol·s AgustÌn
+Apellido(s), nombre(s): Sgro, Nicol√°s Agust√≠n
 DNI: 44669267
-Entrega: SÌ
+Entrega: S√≠
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "juego.h"
 #include "errores.h"
+#include "menu.h"
+#include "presentacion.h"
 
 int main(int argc, char* argv[])
 {
     tError err;
     tJuego juego;
 
-    if ((err = juego_inicializar(&juego)) != TODO_OK) {
+    if ((err = juego_inicializar(&juego)) != TODO_OK)
+    {
         fprintf(stderr, "Error: %s\n", errores_obtener_detalle(err));
         return err;
     }
@@ -34,22 +37,82 @@ int main(int argc, char* argv[])
     // Loop principal
     while (juego.corriendo)
     {
-        // Procesamiento de eventos (teclado, mouse, eventos de ventana)
-        if ((err = juego_procesar_eventos(&juego)) != TODO_OK) {
-            fprintf(stderr, "Error: %s\n", errores_obtener_detalle(err));
+        tAccionMenu accion = juego_procesar_eventos(&juego);
+
+        if (accion == ACCION_VOLVER_MENU)
+        {
+            // Volver al men√∫: liberar partida actual y mostrar men√∫ nuevamente
+            if (juego.partida) {
+                memoria_destruir(juego.partida);
+                juego.partida = NULL;
+            }
+            if (juego.ranking) {
+                vector_destroy(juego.ranking);
+                juego.ranking = NULL;
+            }
+            juego.rankingGuardado = 0;
+
+            // Mostrar men√∫ y obtener nueva configuraci√≥n
+            juego.nombreJugador2[0] = '\0';
+            int navegando = 1;
+
+            while (navegando) {
+                tAccionMenu accionMenu = menu_mostrar(juego.renderer,
+                                                     juego.fuenteChica,
+                                                     "img/fondo_presentacion.png",
+                                                     &juego.configuracion,
+                                                     juego.nombreJugador2,
+                                                     sizeof(juego.nombreJugador2));
+
+                if (accionMenu == ACCION_VER_SCORES) {
+                    menu_mostrar_highscores(juego.renderer, juego.fuenteChica, "img/fondo_presentacion.png");
+                }
+                else if (accionMenu == ACCION_JUGAR) {
+                    if (juego.configuracion.cantJugadores == 2) {
+                        juego.nombreJugador2[0] = '\0';
+                        presentacion_mostrar(juego.renderer, juego.fuenteGrande, 
+                                           "img/fondo_presentacion.png",
+                                           "snd/Sonido_presentacion.mp3",
+                                           "Ingrese el nombre de jugador 2",
+                                           juego.nombreJugador2,
+                                           sizeof(juego.nombreJugador2));
+                    }
+                    navegando = 0;
+                }
+                else {
+                    juego.corriendo = 0;
+                    navegando = 0;
+                    break;
+                }
+            }
+
+            if (!juego.corriendo) break;
+
+            // Guardar configuraci√≥n
+            config_guardar(RUTA_CONFIG, &juego.configuracion);
+
+            // Crear nueva partida
+            juego.partida = memoria_crear(juego.renderer,
+                                         juego.configuracion.filas,
+                                         juego.configuracion.columnas,
+                                         juego.configuracion.setFiguras,
+                                         juego.audioInicializado,
+                                         juego.configuracion.cantJugadores);
+            if (!juego.partida) {
+                fprintf(stderr, "Error al crear la partida.\n");
+                juego.corriendo = 0;
+            }
+        }
+        else if (accion == ACCION_SALIR)
+        {
+            juego.corriendo = 0;
         }
 
-        // Actualizacion del estado del juego y sus elementos
         juego_actualizar(&juego);
-
-        // Renderizado de la escena
         juego_renderizar(&juego);
-
-        SDL_Delay(LOOP_DELAY); // Esta pausa evita que el procesador sea utilizado al 100%. 16ms limita el renderizado a 60 fps (1000 / 16 = ~62,5fps)
+        SDL_Delay(LOOP_DELAY);
     }
 
-    // Limpieza y liberacion de la memoria
     juego_destruir(&juego);
-
     return 0;
 }

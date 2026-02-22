@@ -1,8 +1,3 @@
-/**
- * @file errores.c
- * @brief Implementacion del modulo 'errores'.
- */
-
 #include "errores.h"
 
 const char* errores_obtener_detalle(tError err)

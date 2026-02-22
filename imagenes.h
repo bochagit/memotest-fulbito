@@ -1,5 +1,3 @@
-
-
 #ifndef IMAGENES_H_INCLUDED
 #define IMAGENES_H_INCLUDED
 #include <stdint.h>

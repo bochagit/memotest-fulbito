@@ -1,8 +1,3 @@
-/**
- * @file vector.c
- * @brief Implementación del TDA Vector genérico.
- */
-
 #include "vector.h"
 #include <stdlib.h>
 #include <string.h>

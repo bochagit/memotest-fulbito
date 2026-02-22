@@ -1,10 +1,3 @@
-/**
- * @file juego.c
- * @brief Implementación del módulo principal del juego de la memoria.
- *
- * Flujo: SDL_Init → presentación → menú → crear partida → loop → destruir.
- */
-
 #include "juego.h"
 #include "graficos.h"
 #include "texto.h"
@@ -80,6 +73,7 @@ tError juego_inicializar(tJuego *juego)
     presentacion_mostrar(juego->renderer, juego->fuenteGrande,
                          "img/fondo_presentacion.png",
                          "snd/Sonido_presentacion.mp3",
+                         "Ingrese el nombre de jugador 1",
                          juego->nombreJugador1,
                          sizeof(juego->nombreJugador1));
 
@@ -104,8 +98,17 @@ tError juego_inicializar(tJuego *juego)
             // Mostramos la tabla y, al salir de esta función, el bucle repite el menú
             menu_mostrar_highscores(juego->renderer, juego->fuenteChica, "img/fondo_presentacion.png");
         }
-        else if (accion == ACCION_JUGAR) {
-            // Salimos del bucle para continuar con la creación de la partida abajo
+
+       else if (accion == ACCION_JUGAR) { // Si la configuración indica 2 jugadores, mostramos la misma presentación para el jugador 2
+
+
+        if (juego->configuracion.cantJugadores == 2)
+            { juego->nombreJugador2[0] = '\0';
+       presentacion_mostrar(juego->renderer, juego->fuenteGrande, "img/fondo_presentacion.png",
+                            "snd/Sonido_presentacion.mp3",
+                            "Ingrese el nombre de jugador 2",
+                             juego->nombreJugador2,
+                             sizeof(juego->nombreJugador2)); }
             navegando = 0;
         }
         else {
@@ -114,7 +117,6 @@ tError juego_inicializar(tJuego *juego)
             return ERR_SDL;
         }
     }
-
 
     /* Guardar configuración para la próxima sesión */
     config_guardar(RUTA_CONFIG, &juego->configuracion);
@@ -140,33 +142,97 @@ tError juego_inicializar(tJuego *juego)
     return TODO_OK;
 }
 
-
-tError juego_procesar_eventos(tJuego *juego)
+tAccionMenu juego_procesar_eventos(tJuego *juego)
 {
-    tError err = TODO_OK;
+    tAccionMenu accion = -1;   // ninguna acción por defecto
     SDL_Event evento;
 
+    // Rectángulo del botón Cancelar (arriba a la derecha)
+    SDL_Rect botonCancelar = { juego->anchoVentana - 170, 20, 150, 40 };
+
     while (SDL_PollEvent(&evento)) {
+        // Cerrar ventana
         if (evento.type == SDL_QUIT) {
             juego->corriendo = 0;
+            accion = ACCION_SALIR;
         }
 
-        /* Enviar todos los eventos relevantes al módulo de memoria */
-        if (juego->partida) {
-            if (evento.type == SDL_MOUSEBUTTONDOWN ||
-                evento.type == SDL_MOUSEMOTION) {
-                memoria_procesar_evento(juego->partida, &evento);
+        // Clic con el mouse
+        else if (evento.type == SDL_MOUSEBUTTONDOWN && evento.button.button == SDL_BUTTON_LEFT) {
+            int mx = evento.button.x;
+            int my = evento.button.y;
+
+            // Detectar clic dentro del botón Cancelar
+            if (!memoria_partida_terminada(juego->partida) &&
+                mx >= botonCancelar.x && mx <= botonCancelar.x + botonCancelar.w &&
+                my >= botonCancelar.y && my <= botonCancelar.y + botonCancelar.h) {
+                if(juego->partida){
+                    memoria_destruir(juego->partida);
+                    juego->partida = NULL;
+                }
+                juego->rankingGuardado = 0;
+                accion = ACCION_VOLVER_MENU;   // <-- vuelve al menú
             }
         }
 
-        /* ESC para salir */
-        if (evento.type == SDL_KEYDOWN && evento.key.keysym.sym == SDLK_ESCAPE) {
-            juego->corriendo = 0;
+        // Teclas
+        else if (evento.type == SDL_KEYDOWN) {
+            // ESC: salir del juego
+            if (evento.key.keysym.sym == SDLK_ESCAPE) {
+                if (memoria_partida_terminada(juego->partida)) {
+                    juego->corriendo = 0;
+                    accion = ACCION_SALIR;
+                } else {
+                    // Durante partida, preguntar confirmación o ir directo al menú
+                    if (juego->partida) {
+                        memoria_destruir(juego->partida);
+                        juego->partida = NULL;
+                    }
+                    juego->rankingGuardado = 0;
+                    accion = ACCION_VOLVER_MENU;
+                }
+            }
+            // ENTER: reiniciar partida con misma configuración
+            else if (evento.key.keysym.sym == SDLK_RETURN || evento.key.keysym.sym == SDLK_KP_ENTER) {
+                if (memoria_partida_terminada(juego->partida)) {
+                    // Liberar partida anterior
+                    if (juego->partida) {
+                        memoria_destruir(juego->partida);
+                        juego->partida = NULL;
+                    }
+                    // Liberar ranking guardado
+                    if (juego->ranking) {
+                        vector_destroy(juego->ranking);
+                        juego->ranking = NULL;
+                    }
+                    juego->rankingGuardado = 0;
+
+                    // Crear nueva partida con la misma configuración
+                    juego->partida = memoria_crear(juego->renderer,
+                                                   juego->configuracion.filas,
+                                                   juego->configuracion.columnas,
+                                                   juego->configuracion.setFiguras,
+                                                   juego->audioInicializado,
+                                                   juego->configuracion.cantJugadores);
+
+                    if (!juego->partida) {
+                        fprintf(stderr, "Error al reiniciar la partida.\n");
+                        accion = ACCION_SALIR;
+                    }
+                }
+            }
+        }
+
+        // Eventos de la partida (si está activa)
+        if (juego->partida && !memoria_partida_terminada(juego->partida)) {
+            if (evento.type == SDL_MOUSEBUTTONDOWN || evento.type == SDL_MOUSEMOTION) {
+                memoria_procesar_evento(juego->partida, &evento);
+            }
         }
     }
-    return err;
-}
 
+    return accion;
+}
 
 void juego_actualizar(tJuego *juego)
 {
@@ -207,7 +273,6 @@ void juego_actualizar(tJuego *juego)
         juego->rankingGuardado = 1;
     }
 }
-
 
 void juego_renderizar(tJuego *juego)
 {
@@ -278,6 +343,38 @@ void juego_renderizar(tJuego *juego)
                                juego->fuenteChica, juego->ranking,
                                (int)juego->anchoVentana,
                                (int)juego->altoVentana);
+
+            /* Mensaje adicional para reiniciar */
+            SDL_Texture *tMsg = texto_crear_textura(juego->renderer, juego->fuenteChica,
+                                                    "Presione ENTER para jugar otra vez",
+                                                    (SDL_Color){100,255,100,255});
+            if (tMsg) {
+                int w, h;
+                SDL_QueryTexture(tMsg, NULL, NULL, &w, &h);
+                SDL_Rect dst = { (juego->anchoVentana - w) / 2,
+                                 juego->altoVentana - 50, w, h };
+                SDL_RenderCopy(juego->renderer, tMsg, NULL, &dst);
+                SDL_DestroyTexture(tMsg);
+            }
+        }
+
+    /* ---- Botón Cancelar ---- */
+        if (!terminada) {
+            SDL_Rect botonCancelar = { juego->anchoVentana - 170, 20, 150, 40 };
+            SDL_SetRenderDrawColor(juego->renderer, 200, 50, 50, 255);
+            SDL_RenderFillRect(juego->renderer, &botonCancelar);
+            SDL_SetRenderDrawColor(juego->renderer, 255, 255, 255, 255);
+            SDL_RenderDrawRect(juego->renderer, &botonCancelar);
+            
+            SDL_Texture *tCancelar = texto_crear_textura(juego->renderer, juego->fuenteChica, "Cancelar", blanco);
+            if (tCancelar) {
+                int w, h;
+                SDL_QueryTexture(tCancelar, NULL, NULL, &w, &h);
+                SDL_Rect dst = { botonCancelar.x + (botonCancelar.w - w)/2, 
+                                botonCancelar.y + (botonCancelar.h - h)/2, w, h };
+                SDL_RenderCopy(juego->renderer, tCancelar, NULL, &dst);
+                SDL_DestroyTexture(tCancelar);
+            }
         }
     }
 
@@ -285,7 +382,6 @@ void juego_renderizar(tJuego *juego)
     graficos_cambiar_framebuffer(juego->renderer, NULL);
     graficos_renderizar(juego->renderer, juego->framebuffers, FB_CANT);
 }
-
 
 void juego_destruir(tJuego *juego)
 {

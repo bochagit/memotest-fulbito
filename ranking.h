@@ -1,11 +1,3 @@
-/**
- * @file ranking.h
- * @brief Sistema de ranking – Top 10 mejores puntajes.
- *
- * Guarda, carga, ordena y muestra los mejores 10 jugadores
- * con sus nombres y puntajes en un archivo .txt.
- */
-
 #ifndef RANKING_H_INCLUDED
 #define RANKING_H_INCLUDED
 

@@ -1,8 +1,3 @@
-/**
- * @file sonidos.c
- * @brief Implementacion del modulo 'sonidos'.
- */
-
 #include "sonidos.h"
 #include <stdio.h>
 #include <stdlib.h>

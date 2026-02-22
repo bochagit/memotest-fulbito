@@ -1,4 +1,3 @@
-
 #include "ranking.h"
 #include "texto.h"
 #include <stdio.h>

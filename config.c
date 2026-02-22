@@ -1,8 +1,3 @@
-/**
- * @file config.c
- * @brief Implementación del módulo de configuración persistente.
- */
-
 #include "config.h"
 #include <stdio.h>
 #include <string.h>

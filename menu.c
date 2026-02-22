@@ -1,8 +1,3 @@
-/**
- * @file menu.c
- * @brief Implementación del menú gráfico de configuración (SDL).
- */
-
 #include "menu.h"
 #include "imagenes.h"
 #include "ranking.h"
@@ -107,9 +102,9 @@ tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *f
     while (1) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
-            if (ev.type == SDL_QUIT) { 
+            if (ev.type == SDL_QUIT) {
                 if (fondoConfig) SDL_DestroyTexture(fondoConfig);
-                return ACCION_SALIR; 
+                return ACCION_SALIR;
             }
             if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
                 int mx = ev.button.x, my = ev.button.y;
@@ -129,7 +124,7 @@ tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *f
                         for (int j = 0; j < 2; ++j) jugOpc[j].seleccionado = 0;
                         jugOpc[i].seleccionado = 1;
                     }
-                
+
                 if (_dentro(&botonJugar, mx, my)) {
                     /* Aplicar selecciones */
                     if      (dimOpc[0].seleccionado) { cfg->filas = 3; cfg->columnas = 4; }
@@ -139,8 +134,10 @@ tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *f
                     cfg->setFiguras   = setOpc[1].seleccionado ? 2 : 1;
                     cfg->cantJugadores = jugOpc[1].seleccionado ? 2 : 1;
 
+                    ///Comento para que salga la imagen correcta
+
                     /* Si hay 2 jugadores, pedir nombre del segundo */
-                    if (cfg->cantJugadores == 2 && nombreJugador2 && maxLen > 0) {
+                 /*   if (cfg->cantJugadores == 2 && nombreJugador2 && maxLen > 0) {
                         char buffer[256] = {0};
                         size_t len = 0;
                         SDL_StartTextInput();
@@ -151,10 +148,10 @@ tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *f
                         while (!terminado) {
                             SDL_Event ev2;
                             while (SDL_PollEvent(&ev2)) {
-                                if (ev2.type == SDL_QUIT) { 
-                                    SDL_StopTextInput(); 
+                                if (ev2.type == SDL_QUIT) {
+                                    SDL_StopTextInput();
                                     if (fondoConfig) SDL_DestroyTexture(fondoConfig);
-                                    return ACCION_SALIR; 
+                                    return ACCION_SALIR;
                                 }
                                 if (ev2.type == SDL_TEXTINPUT) {
                                     size_t agregar = strlen(ev2.text.text);
@@ -214,10 +211,19 @@ tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *f
                         nombreJugador2[maxLen - 1] = '\0';
                     }
 
+
+
+
+
+
+                    */
+
+
+
                     if (fondoConfig) SDL_DestroyTexture(fondoConfig);
                     return ACCION_JUGAR;
                 }
-                
+
                 if (_dentro(&botonScores, mx, my)) {
                     if (fondoConfig) SDL_DestroyTexture(fondoConfig);
                     return ACCION_VER_SCORES;

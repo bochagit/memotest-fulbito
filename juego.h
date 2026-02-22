@@ -1,4 +1,3 @@
-
 #ifndef JUEGO_H_INCLUDED
 #define JUEGO_H_INCLUDED
 
@@ -11,10 +10,12 @@
 #include "config.h"
 #include "ranking.h"
 
+#include"menu.h"
 #define LOOP_DELAY      16
 #define ANCHO_VENTANA  1024
 #define ALTO_VENTANA    768
 #define RUTA_CONFIG    "config.txt"
+//#define ACCION_VOLVER_MENU 4
 
 /* Capas de renderizado */
 typedef enum {
@@ -23,6 +24,12 @@ typedef enum {
     FB_HUD,
     FB_CANT,
 } eFramebuffers;
+
+typedef enum {
+    ESTADO_MENU,
+    ESTADO_JUGANDO,
+     ESTADO_RANKING }
+     tEstadoJuego;
 
 /* Estructura principal del juego */
 typedef struct {
@@ -43,10 +50,11 @@ typedef struct {
     tMemoria     *partida;
     tVector      *ranking;           /* ranking top 10 */
     uint8_t       rankingGuardado;   /* 1 si ya se guardó el score */
+    tEstadoJuego  estado;
 } tJuego;
 
 tError juego_inicializar(tJuego *juego);
-tError juego_procesar_eventos(tJuego *juego);
+tAccionMenu juego_procesar_eventos(tJuego *juego);
 void   juego_actualizar(tJuego *juego);
 void   juego_renderizar(tJuego *juego);
 void   juego_destruir(tJuego *juego);

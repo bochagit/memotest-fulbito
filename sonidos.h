@@ -1,5 +1,3 @@
-
-
 #ifndef SONIDOS_H_INCLUDED
 #define SONIDOS_H_INCLUDED
 #include <SDL2/SDL.h>

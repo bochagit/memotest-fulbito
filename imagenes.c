@@ -1,8 +1,3 @@
-/**
- * @file imagenes.c
- * @brief Implementacion del modulo 'imagenes'.
- */
-
 #include "imagenes.h"
 #include <stdio.h>
 

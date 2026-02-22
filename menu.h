@@ -8,9 +8,10 @@
 
 // Definimos qué acción eligió el usuario en el menú
 typedef enum {
-    ACCION_JUGAR,
-    ACCION_VER_SCORES,
-    ACCION_SALIR
+    ACCION_SALIR = 0,
+    ACCION_JUGAR = 1,
+    ACCION_VER_SCORES=2,
+    ACCION_VOLVER_MENU = 3
 } tAccionMenu;
 
 // Ahora la función devuelve la acción elegida
@@ -19,4 +20,4 @@ tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *f
 // Nueva función para mostrar la tabla
 void menu_mostrar_highscores(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath);
 
-#endif
+#endif // MENU_H_INCLUDED

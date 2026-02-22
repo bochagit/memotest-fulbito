@@ -1,4 +1,3 @@
-
 #ifndef SDL_EJEMPLO_TEXTO_H
 #define SDL_EJEMPLO_TEXTO_H
 #include "errores.h"
@@ -9,7 +8,7 @@
 /**
  * @brief Inicializa el subsistema SDL_ttf.
  *
- * @return tError TODO_OK si la inicialización fue exitosa, o ERR_SDL_TTF en caso de falla.
+ * @return tError TODO_OK si la inicializaciï¿½n fue exitosa, o ERR_SDL_TTF en caso de falla.
  */
 tError texto_inicializar(void);
 

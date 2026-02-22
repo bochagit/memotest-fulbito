@@ -1,8 +1,3 @@
-/**
- * @file hud.c
- * @brief Implementacion del modulo 'hud'.
- */
-
 #include "hud.h"
 #include <stdio.h>
 #include <stdlib.h>

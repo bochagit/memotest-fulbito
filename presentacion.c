@@ -1,8 +1,3 @@
-/**
- * @file presentacion.c
- * @brief Implementación de la pantalla de presentación con entrada de nombre.
- */
-
 #include "presentacion.h"
 #include "imagenes.h"
 #include "texto.h"
@@ -15,7 +10,8 @@
 // Tiempo de parpadeo del cursor en ms
 #define CARET_BLINK_MS 500
 
-tError presentacion_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, const char *sonidoPath, char *outName, size_t maxLen)
+tError presentacion_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, const char *sonidoPath, const char *mensaje,
+                             char *outName, size_t maxLen)
 {
     if (!renderer || !fuente || !outName || maxLen == 0) return ERR_MEMORIA;
 
@@ -37,7 +33,7 @@ tError presentacion_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char
     SDL_GetRendererOutputSize(renderer, &anchoVentana, &altoVentana);
 
     /* Dimensiones del recuadro centrado */
-    int recuadroAncho = 800;
+    int recuadroAncho = 950;
     int recuadroAlto  = 180;
     if (recuadroAncho > anchoVentana - 40) recuadroAncho = anchoVentana - 40;
     int recuadroX = (anchoVentana - recuadroAncho) / 2;
@@ -109,8 +105,9 @@ tError presentacion_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char
 
         /* Texto de instrucción centrado dentro del recuadro */
         SDL_Color blanco = {255, 255, 255, 255};
-        SDL_Texture *tInstruccion = texto_crear_textura(renderer, fuenteUsada,
-            "Ingrese su nombre:", blanco);
+       SDL_Texture *tInstruccion = texto_crear_textura(renderer, fuenteUsada,
+    mensaje ? mensaje : "Ingrese su nombre:", blanco);
+;
         if (tInstruccion) {
             int w, h;
             SDL_QueryTexture(tInstruccion, NULL, NULL, &w, &h);

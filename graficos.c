@@ -1,15 +1,7 @@
-/**
- * @file graficos.c
- * @brief Implementacion del modulo 'graficos'.
- */
-
 #include "graficos.h"
 #include "stdio.h"
 #include <stdlib.h>
 
-/**
- * @brief Paleta de colores.
- */
 SDL_Color colores[] =
 {
     {0,   0,   0,   255}, // N[0] - Negro
