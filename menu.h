@@ -10,12 +10,15 @@
 typedef enum {
     ACCION_SALIR = 0,
     ACCION_JUGAR = 1,
-    ACCION_VER_SCORES=2,
-    ACCION_VOLVER_MENU = 3
+    ACCION_VER_SCORES = 2,
+    ACCION_VOLVER_MENU = 3,
+    ACCION_CAMBIAR_NOMBRES = 4
 } tAccionMenu;
 
 // Ahora la función devuelve la acción elegida
-tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, tConfig *cfg, char *nombreJugador2, size_t maxLen);
+tAccionMenu menu_mostrar(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath, 
+                         tConfig *cfg, char *nombreJugador1, char *nombreJugador2, 
+                         size_t maxLen1, size_t maxLen2);
 
 // Nueva función para mostrar la tabla
 void menu_mostrar_highscores(SDL_Renderer *renderer, TTF_Font *fuente, const char *fondoPath);

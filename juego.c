@@ -68,51 +68,63 @@ tError juego_inicializar(tJuego *juego)
         juego->framebuffers[i] = graficos_crear_framebuffer(juego->renderer,
                                     juego->anchoVentana, juego->altoVentana);
 
-    /* ---- Pantalla de presentación (pide nombre jugador 1) ---- */
+    /* ---- Pedir SOLO el nombre del jugador 1 al inicio ---- */
     juego->nombreJugador1[0] = '\0';
+    juego->nombreJugador2[0] = '\0';
+    
     presentacion_mostrar(juego->renderer, juego->fuenteGrande,
                          "img/fondo_presentacion.png",
                          "snd/Sonido_presentacion.mp3",
-                         "Ingrese el nombre de jugador 1",
+                         "Ingrese su nombre",
                          juego->nombreJugador1,
                          sizeof(juego->nombreJugador1));
 
     /* ---- Cargar configuración persistente ---- */
     juego->configuracion = config_cargar(RUTA_CONFIG);
 
-    /* ---- Menú gráfico ---- */
-    juego->nombreJugador2[0] = '\0';
-/* ---- Menú gráfico (Navegación con Highscores) ---- */
-    juego->nombreJugador2[0] = '\0';
+    /* ---- Menú gráfico (Navegación con Highscores) ---- */
     int navegando = 1;
-
     while (navegando) {
         tAccionMenu accion = menu_mostrar(juego->renderer,
                                           juego->fuenteChica,
                                           "img/fondo_presentacion.png",
                                           &juego->configuracion,
+                                          juego->nombreJugador1,
                                           juego->nombreJugador2,
+                                          sizeof(juego->nombreJugador1),
                                           sizeof(juego->nombreJugador2));
 
         if (accion == ACCION_VER_SCORES) {
-            // Mostramos la tabla y, al salir de esta función, el bucle repite el menú
             menu_mostrar_highscores(juego->renderer, juego->fuenteChica, "img/fondo_presentacion.png");
         }
-
-       else if (accion == ACCION_JUGAR) { // Si la configuración indica 2 jugadores, mostramos la misma presentación para el jugador 2
-
-
-        if (juego->configuracion.cantJugadores == 2)
-            { juego->nombreJugador2[0] = '\0';
-       presentacion_mostrar(juego->renderer, juego->fuenteGrande, "img/fondo_presentacion.png",
-                            "snd/Sonido_presentacion.mp3",
-                            "Ingrese el nombre de jugador 2",
-                             juego->nombreJugador2,
-                             sizeof(juego->nombreJugador2)); }
+        else if (accion == ACCION_CAMBIAR_NOMBRES) {
+            presentacion_mostrar(juego->renderer, juego->fuenteGrande,
+                               "img/fondo_presentacion.png",
+                               "snd/Sonido_presentacion.mp3",
+                               "Ingrese el nombre de jugador 1",
+                               juego->nombreJugador1,
+                               sizeof(juego->nombreJugador1));
+            
+            presentacion_mostrar(juego->renderer, juego->fuenteGrande,
+                               "img/fondo_presentacion.png",
+                               "snd/Sonido_presentacion.mp3",
+                               "Ingrese el nombre de jugador 2",
+                               juego->nombreJugador2,
+                               sizeof(juego->nombreJugador2));
+        }
+        else if (accion == ACCION_JUGAR) {
+            /* Si eligió 2 jugadores y no tiene nombre el jugador 2, pedirlo */
+            if (juego->configuracion.cantJugadores == 2 && !juego->nombreJugador2[0]) {
+                presentacion_mostrar(juego->renderer, juego->fuenteGrande,
+                                   "img/fondo_presentacion.png",
+                                   "snd/Sonido_presentacion.mp3",
+                                   "Ingrese el nombre de jugador 2",
+                                   juego->nombreJugador2,
+                                   sizeof(juego->nombreJugador2));
+            }
             navegando = 0;
         }
         else {
-            // Si cerró la ventana o hubo error (ACCION_SALIR)
             juego->corriendo = 0;
             return ERR_SDL;
         }

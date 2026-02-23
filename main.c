@@ -41,7 +41,6 @@ int main(int argc, char* argv[])
 
         if (accion == ACCION_VOLVER_MENU)
         {
-            // Volver al menú: liberar partida actual y mostrar menú nuevamente
             if (juego.partida) {
                 memoria_destruir(juego.partida);
                 juego.partida = NULL;
@@ -52,25 +51,40 @@ int main(int argc, char* argv[])
             }
             juego.rankingGuardado = 0;
 
-            // Mostrar menú y obtener nueva configuración
-            juego.nombreJugador2[0] = '\0';
             int navegando = 1;
-
             while (navegando) {
                 tAccionMenu accionMenu = menu_mostrar(juego.renderer,
                                                      juego.fuenteChica,
                                                      "img/fondo_presentacion.png",
                                                      &juego.configuracion,
+                                                     juego.nombreJugador1,
                                                      juego.nombreJugador2,
+                                                     sizeof(juego.nombreJugador1),
                                                      sizeof(juego.nombreJugador2));
 
                 if (accionMenu == ACCION_VER_SCORES) {
                     menu_mostrar_highscores(juego.renderer, juego.fuenteChica, "img/fondo_presentacion.png");
                 }
+                else if (accionMenu == ACCION_CAMBIAR_NOMBRES) {
+                    // Cambiar ambos nombres
+                    presentacion_mostrar(juego.renderer, juego.fuenteGrande,
+                                       "img/fondo_presentacion.png",
+                                       "snd/Sonido_presentacion.mp3",
+                                       "Ingrese el nombre de jugador 1",
+                                       juego.nombreJugador1,
+                                       sizeof(juego.nombreJugador1));
+                    
+                    presentacion_mostrar(juego.renderer, juego.fuenteGrande,
+                                       "img/fondo_presentacion.png",
+                                       "snd/Sonido_presentacion.mp3",
+                                       "Ingrese el nombre de jugador 2",
+                                       juego.nombreJugador2,
+                                       sizeof(juego.nombreJugador2));
+                }
                 else if (accionMenu == ACCION_JUGAR) {
-                    if (juego.configuracion.cantJugadores == 2) {
-                        juego.nombreJugador2[0] = '\0';
-                        presentacion_mostrar(juego.renderer, juego.fuenteGrande, 
+                    /* Si eligió 2 jugadores y no tiene nombre el jugador 2, pedirlo */
+                    if (juego.configuracion.cantJugadores == 2 && !juego.nombreJugador2[0]) {
+                        presentacion_mostrar(juego.renderer, juego.fuenteGrande,
                                            "img/fondo_presentacion.png",
                                            "snd/Sonido_presentacion.mp3",
                                            "Ingrese el nombre de jugador 2",
@@ -88,10 +102,8 @@ int main(int argc, char* argv[])
 
             if (!juego.corriendo) break;
 
-            // Guardar configuración
             config_guardar(RUTA_CONFIG, &juego.configuracion);
 
-            // Crear nueva partida
             juego.partida = memoria_crear(juego.renderer,
                                          juego.configuracion.filas,
                                          juego.configuracion.columnas,
